@@ -19,3 +19,6 @@ android-native-agent/traces/
 *.apk
 phone_*.png
 graphify-out/cache/
+auto_scheduler.py
+scheduler_state.json
+scheduler.log
