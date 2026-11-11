@@ -1,5 +1,6 @@
 node_modules/
-dist/
+web/dist/
+!android-native-agent/app/src/main/assets/dist/
 *.db
 *.db-shm
 *.db-wal

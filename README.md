@@ -1,8 +1,12 @@
-# ReplyForge v3.0
+# ReplyForge v4.0 (Standalone Native)
 ### *Zero-API Autonomous Commerce, HPP Guard & Inventory Agent for Indonesian MSMEs*
 
 **Kategori:** Mobile & Web Terintegrasi (Subtema 3: *Local MSME & Creative Economy* — LOGICODIX 2026)  
-**Tim Pengembang:** Ferdinand Manurung (`royaldinan`)
+**Tim Pengembang (LOGICODIX 2026):**
+1. **Ferdinand Manurung** (`royaldinan`) — *Team Lead & System Architect*
+2. **Abyan Nur Zaky** (`anzuky1`) — *Backend Core & AI Pipeline Engineer*
+3. **Farrel Basayev** (`FarrelBasayev`) — *Frontend Web & Design Systems Engineer*
+4. **Alex** (`Alex1a67`) — *Android Mobile Native Engineer*
 
 ---
 
@@ -12,9 +16,9 @@
 > *"Penjual UMKM di WhatsApp Business dan Shopee perlu membalas chat pelanggan, menjaga harga tawar di atas modal (HPP), dan mencatat pesanan ke buku stok, tapi sekarang harus menyalin chat satu per satu dan mengecek stok manual di dua aplikasi, sehingga banyak pesanan terlewat, stok selisih (overselling), atau rugi karena salah hitung tawar-menawar."*
 
 **Arsitektur Pembagian Tugas: MODEL vs KODE vs MANUSIA**
-1. **TUGAS MODEL (AI):** Menafsirkan chat bebas yang berantakan dari pembeli (singkatan, bahasa daerah/santai, negosiasi) menjadi struktur draf pesanan dan klasifikasi intent.
-2. **TUGAS KODE (Deterministik 100% Pasti):** Menghitung total harga Rupiah, memvalidasi batas minimal HPP (Harga Pokok Penjualan), memotong & mengembalikan stok SQLite secara atomik, memblokir notifikasi kode OTP perbankan secara lokal di perangkat (0 byte ke AI), serta mendeteksi jumlah pembelian tidak wajar (`max_order_normal`).
-3. **TUGAS MANUSIA (Penjual):** Memegang keputusan berisiko tinggi—mengonfirmasi draf pesanan yang alamatnya belum lengkap (*"kirim kayak biasa"*), serta menerima **Notifikasi Peringatan Prioritas (Escalation Alert)** saat ada pembeli yang bertanya aneh/mencurigakan atau memesan jumlah barang yang tidak wajar.
+1. **TUGAS MODEL (AI):** Menafsirkan chat bebas yang berantakan dari pembeli (singkatan, bahasa daerah/santai, negosiasi) menjadi struktur draf pesanan dan klasifikasi intent tanpa memaksa pembeli mentransfer saat hanya tanya stok.
+2. **TUGAS KODE (Deterministik 100% Pasti):** Menghitung total harga Rupiah, memvalidasi batas minimal HPP (Harga Pokok Penjualan), memotong & mengembalikan stok SQLite secara atomik, memblokir notifikasi kode OTP perbankan secara lokal di perangkat (0 byte ke AI), serta mendeteksi jumlah pembelian tidak wajar (`max_order_normal`) atau pertanyaan aneh/mencurigakan.
+3. **TUGAS MANUSIA (Penjual):** Memegang keputusan berisiko tinggi—mengonfirmasi pesanan yang alamatnya belum lengkap (*"kirim kayak biasa"*), serta menerima **Notifikasi Peringatan Prioritas (Escalation Alert)** saat ada pembeli yang bertanya aneh/mencurigakan atau memesan jumlah barang yang tidak wajar.
 
 ---
 
@@ -28,64 +32,50 @@ Aplikasi menyediakan halaman **Autentikasi Akun Toko** serta **Tombol Masuk Cepa
 
 ### Cara Penjual Menghubungkan Akun Shopee Seller & WhatsApp Business (3 Langkah di APK):
 1. **Langkah 1 (Identitas & Rekening Toko):** Penjual mendaftarkan Nama Toko, Nomor WhatsApp Business, Username Shopee Seller, dan Rekening Bank tujuan pembayaran.
-2. **Langkah 2 (Izin Jembatan Notifikasi OS Android):** Penjual memastikan aplikasi WhatsApp Business (`com.whatsapp.w4b`) dan Shopee (`com.shopee.id`) sudah login di HP Android mereka, lalu menekan tombol **"Buka Pengaturan Izin Notifikasi Android"** di dalam APK ReplyForge untuk mengaktifkan `ReplyForgeNotificationService` (`NotificationListenerService` & `RemoteInput`).
-3. **Langkah 3 (Verifikasi Jembatan):** Penjual menekan tombol **"Kirim Pesan Tes Jembatan"** untuk memverifikasi bahwa notifikasi chat masuk langsung tertangkap dan siap dibalas otomatis tanpa biaya sewa API dan tanpa menyerahkan password akun marketplace.
+2. **Langkah 2 (Izin Jembatan Notifikasi OS Android):** Penjual memastikan aplikasi WhatsApp Business (`com.whatsapp.w4b`) dan Shopee (`com.shopee.id`) sudah aktif di HP Android, lalu menekan tombol **"Buka Pengaturan Izin Notifikasi Android"** di dalam APK ReplyForge untuk mengaktifkan `ReplyForgeNotificationService` (`NotificationListenerService` & `RemoteInput`).
+3. **Langkah 3 (Verifikasi Jembatan):** Penjual menekan tombol **"Kirim Pesan Tes Jembatan"** untuk memverifikasi bahwa notifikasi chat masuk langsung tertangkap dan siap dibalas otomatis tanpa biaya sewa API dan tanpa kabel USB/laptop.
 
 ---
 
-## 🏗️ 2. Diagram Arsitektur Cross-Device Sync
+## 🏗️ 3. Diagram Arsitektur Standalone Native v4.0
 
 ```mermaid
 flowchart TD
-    subgraph AndroidDevice ["📱 Android OS Device (Infinix Note 40 — Lina Shop)"]
-        NOTIF["Notification Posted\n(com.shopee.id / com.whatsapp.w4b)"]
-        NLS["ReplyForgeNotificationService.java\n(NotificationListenerService)"]
-        WHITELIST{"Strict Package Whitelist\n& Group Filter"}
-        OTP_SHIELD{"Client-Side PII & OTP Shield\n(UU PDP Guard)"}
-        REMOTE_INPUT["Autonomous RemoteInput Dispatcher\n(Zero Ban Risk)"]
-        WEBVIEW["Mobile App Interface\n(WebView -> localhost:8088/?mobile=1)"]
+    subgraph AndroidDevice ["📱 Standalone Android Phone (Infinix Note 40 — Lina Shop)"]
+        NOTIF["Notification Posted\n(com.whatsapp.w4b / com.shopee.id)"]
+        NLS["ReplyForgeNotificationService.java\n(NotificationListenerService + WakeLock)"]
+        WHITELIST{"Strict Package Whitelist\n& Anti-Echo Guard"}
+        OTP_SHIELD{"Client-Side OTP Shield\n(UU PDP Guard)"}
+        REMOTE_INPUT["Autonomous RemoteInput Dispatcher\n(Direct OS Reply < 800ms)"]
         
         NOTIF --> NLS
         NLS --> WHITELIST
-        WHITELIST -- "Group Chat" --> DROP["Silently Dropped"]
-        WHITELIST -- "Valid App" --> OTP_SHIELD
+        WHITELIST -- "Group / Self Echo" --> DROP["Silently Dropped"]
+        WHITELIST -- "Buyer Chat" --> OTP_SHIELD
         OTP_SHIELD -- "OTP Detected" --> DROP_OTP["🚫 Blocked On-Device (0 Bytes to Cloud)"]
-        OTP_SHIELD -- "Safe Clean Text" --> ADB_REV["ADB Reverse Bridge\n(tcp:8088)"]
+        
+        subgraph OnDeviceEngine ["🧠 On-Device Autonomous Engine (Zero Laptop Required)"]
+            AI_ENGINE["ReplyForgeAiEngine.java\n(Slang Normalizer + HPP Guard + Anomaly)"]
+            SQLITE_DB[("ReplyForgeDb.java\n(Local SQLite on Phone)")]
+            LOCAL_SERVER["ReplyForgeLocalServer.java\n(Embedded Loopback 127.0.0.1:8088)"]
+            WEBVIEW["Mobile Seller Center WebView\n(Assets: file:///android_asset/dist/)"]
+        end
+
+        OTP_SHIELD -- "Clean Text" --> AI_ENGINE
+        AI_ENGINE <--> SQLITE_DB
+        AI_ENGINE -- "Anomaly Alert" --> NOTIF_ALERT["⚠️ Heads-Up Escalation Alert to Merchant"]
+        AI_ENGINE -- "Normal Chat Reply" --> REMOTE_INPUT
+        REMOTE_INPUT --> NOTIF_REPLY["Delivered to Buyer via WhatsApp / Shopee"]
+        
+        LOCAL_SERVER <--> SQLITE_DB
+        WEBVIEW <--> LOCAL_SERVER
     end
 
-    subgraph ReplyForgeEngine ["⚡ ReplyForge Localhost Core (Node.js & SQLite)"]
-        WEBHOOK["POST /api/notification-webhook"]
-        TELEMETRY["SSE Live Telemetry Stream\n(4-Node Visual Pipeline)"]
-        CACHE{"Green Semantic Cache\n(On-Device Match?)"}
-        PAYMENT_PARSER{"Shopee Payment Notif?\n(#2610259988LINA)"}
-        INTENT_MEM[(buyer_intent_sessions\n@rina_wati88 -> 2x Stiker Kucing)]
-        DEBOUNCE["3s Humanized Debounce Queue\n(Merge Fragmented Chat)"]
-        DB[(node:sqlite Storage\nProducts | Rules | Orders | Cache)]
-        GATEWAY["9Router AI Gateway\n(Port 20128: ag/gemini-3.8-flash-low)"]
-        FALLBACK["Built-in Smart Local Engine\n(100% Offline Demo Fallback)"]
-        
-        ADB_REV --> WEBHOOK
-        WEBHOOK --> TELEMETRY
-        WEBHOOK --> PAYMENT_PARSER
-        
-        PAYMENT_PARSER -- "Shopee Payment Detected" --> INTENT_MEM
-        INTENT_MEM -- "Match @rina_wati88" --> MUTATE_PAY["Auto Lunas & Potong Stok (-2 pcs)"]
-        MUTATE_PAY --> DB
-        
-        PAYMENT_PARSER -- "Normal Chat" --> CACHE
-        CACHE -- "Hit (0ms)" --> TELEMETRY
-        CACHE -- "Miss" --> DEBOUNCE
-        DEBOUNCE --> GATEWAY
-        GATEWAY -- "Fail / Offline" --> FALLBACK
-        GATEWAY -- "Success" --> OUTBOX["Android OS Outbox Queue"]
-        FALLBACK --> OUTBOX
-        CACHE -- "Hit" --> OUTBOX
+    subgraph CloudAI ["☁️ HTTPS AI Fallback (Optional Quota)"]
+        GEMINI["Google Gemini / OpenRouter API\n(Direct HTTPS from Phone)"]
     end
 
-    OUTBOX --> ADB_REV
-    ADB_REV --> REMOTE_INPUT
-    REMOTE_INPUT --> NOTIF_REPLY["Delivered to Buyer Chat (0ms/3s Delay)"]
-    WEBVIEW -.-> ADB_REV
+    AI_ENGINE -.-> GEMINI
 ```
 
 ---
