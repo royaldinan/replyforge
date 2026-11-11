@@ -1,0 +1,29 @@
+{
+  "name": "replyforge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zero-API Autonomous Commerce & Inventory Agent for Indonesian MSMEs (WhatsApp Business + Shopee)",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c green,magenta \"npm:dev -w server\" \"npm:dev -w web\"",
+    "build": "npm run build -w web",
+    "start": "npm run build && npm run start -w server",
+    "reset-db": "npm run reset-db -w server",
+    "test": "npm run test -w web",
+    "test:web": "npm run test -w web",
+    "test:server": "npm run test -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}
