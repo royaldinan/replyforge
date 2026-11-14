@@ -195,8 +195,8 @@ export const SystemTab = ({
           level={2}
           icon={Cpu}
           tone="indigo"
-          title="Kecerdasan AI (Cloud Gemini / Groq)"
-          description={modelHelper}
+          title="Mesin AI (opsional)"
+          description="Kosongkan kunci API untuk memakai mesin lokal 100% offline di HP."
         />
         <div className="space-y-3">
           <div>
