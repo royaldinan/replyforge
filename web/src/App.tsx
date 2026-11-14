@@ -385,8 +385,8 @@ export default function App() {
           onOpenConnectWizard={() => setConnectWizardOpen(true)}
         />
 
-        <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center gap-8 px-0 py-0 lg:flex-row lg:items-center lg:gap-16 lg:px-8 lg:py-10">
-          <aside className="hidden w-full max-w-sm flex-col gap-5 lg:flex">
+        <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col items-center justify-center px-0 py-0 lg:py-6">
+          <aside className="hidden">
             <div className="flex items-center gap-3">
               <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 text-sm font-extrabold text-zinc-950 shadow-gold ring-1 ring-inset ring-amber-500/40">
                 RF
@@ -419,7 +419,7 @@ export default function App() {
             </p>
           </aside>
 
-          <div className="w-full max-w-[430px] overflow-hidden bg-app lg:rounded-[2.6rem] lg:border-[10px] lg:border-zinc-900 lg:shadow-pop">
+          <div className="w-full max-w-[430px] overflow-hidden bg-app lg:rounded-3xl lg:shadow-card">
             <MobileAppView
               products={products}
               rules={rules}

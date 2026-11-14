@@ -32,6 +32,17 @@ export default {
         },
         shopee: { DEFAULT: '#EE4D2D', ink: '#C23315', deep: '#D2411D' },
         wa: { DEFAULT: '#16A34A', deep: '#15803D' },
+        // Palet disamakan dengan APK final: burnt-orange / brown, bukan kuning cerah.
+        yellow: {
+          50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 300: '#D97706',
+          400: '#B45309', 500: '#92400E', 600: '#78350F', 700: '#651F0B',
+          800: '#451A03', 900: '#2C1002',
+        },
+        amber: {
+          50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 300: '#D97706',
+          400: '#B45309', 500: '#92400E', 600: '#78350F', 700: '#651F0B',
+          800: '#451A03', 900: '#2C1002',
+        },
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', '-apple-system', '"Segoe UI"', 'Roboto', 'sans-serif'],

@@ -1,10 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import { AlertTriangle, Camera, Check, Mic, Minus, Plus, RefreshCw, Send, Sparkles, Upload } from 'lucide-react';
-import { toast } from 'sonner';
+import { useRef } from 'react';
+import { Download, Plus, RefreshCw, Upload } from 'lucide-react';
 import { formatRupiah } from '../../lib/format';
 import type { Product, Rule } from '../../types';
-import { Badge, Button, Card, CardHeader, IconButton, ProgressBar, Segmented, cn, inputBase } from '../ui';
-import { COMMAND_EXAMPLES, PRESETS, type Preset } from './data';
 import type { StockComposer } from './useStockComposer';
 
 interface StockTabProps {
@@ -16,290 +13,151 @@ interface StockTabProps {
   onRefresh: () => void;
 }
 
-const LOW_STOCK_AT = 5;
+/**
+ * Tab Stok disamakan dengan APK: tanpa voice/mic, tanpa kartu AI, tanpa tab ganda.
+ * Isi: Tambah Produk, Unduh Template, Impor Excel/CSV, perintah cepat, daftar produk -1/+1/+10.
+ */
+export const StockTab = ({ products, composer, onAdjustStock, onRefresh }: StockTabProps) => {
+  const fileRef = useRef<HTMLInputElement>(null);
 
-/* ---------------------------- Perintah cepat ---------------------------- */
-
-const Composer = ({ composer }: { composer: StockComposer }) => {
-  const canSubmit = composer.inputText.trim().length > 0;
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      composer.importCsv(file);
-      e.target.value = '';
-    }
+  const addProduct = () => {
+    const name = window.prompt('Nama produk baru:');
+    if (!name || !name.trim()) return;
+    const price = window.prompt('Harga jual (angka):', '15000') ?? '15000';
+    const hpp = window.prompt('Harga modal / HPP (angka):', '6000') ?? '6000';
+    const stock = window.prompt('Stok awal:', '10') ?? '10';
+    void composer.submit(`tambah produk ${name.trim()} harga ${price} hpp ${hpp} stok ${stock} satuan pack`);
   };
-  return (
-    <Card>
-      <CardHeader
-        level={2}
-        icon={Sparkles}
-        tone="emerald"
-        title="Perintah stok cepat"
-        description="Ketik perintah biasa; AI mengisi stok dan aturan balasan."
-      />
 
-      <div className="relative">
-        <textarea
-          rows={3}
-          aria-label="Perintah stok dan aturan"
-          value={composer.inputText}
-          onChange={(e) => composer.setInputText(e.target.value)}
-          placeholder="Ketik perintah suara, misal: Paket Stiker Kucing stok 50 harga 15 ribu HPP 6 ribu..."
-          className={cn(inputBase, 'resize-none rounded-xl py-3 pl-3.5 pr-14 text-[15px] leading-6')}
-        />
+  return (
+    <div className="space-y-4 px-4 pb-6 pt-4">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-base font-bold text-ink-1">Katalog &amp; Stok Toko</h2>
         <button
           type="button"
-          onClick={composer.simulateVoice}
-          aria-pressed={composer.isListening}
-          aria-label={composer.isListening ? 'Sedang mendengarkan' : 'Ucapkan perintah'}
-          className={cn(
-            'interactive-tap absolute bottom-2 right-2 grid h-11 w-11 place-items-center rounded-xl ring-1 ring-inset',
-            composer.isListening
-              ? 'animate-pulse bg-red-500/20 text-red-300 ring-red-400/40'
-              : 'bg-white/6 text-ink-2 ring-white/10 hover:text-ink-1',
-          )}
+          onClick={addProduct}
+          className="inline-flex h-9 items-center gap-1 rounded-xl bg-brand-deep px-3 text-xs font-bold text-white"
         >
-          <Mic className="h-[18px] w-[18px]" aria-hidden="true" />
+          <Plus className="h-3.5 w-3.5" aria-hidden="true" /> Tambah Produk
         </button>
       </div>
 
-      <div className="mt-2.5 flex min-h-[2.25rem] flex-wrap items-center gap-2">
-        {composer.isListening ? (
-          <p role="status" className="text-xs font-medium text-red-300">
-            Mendengarkan suara admin toko...
-          </p>
-        ) : (
-          COMMAND_EXAMPLES.map((ex) => (
-            <button
-              key={ex.label}
-              type="button"
-              onClick={() => composer.setInputText(ex.text)}
-              className="interactive-tap h-10 rounded-full bg-white/6 px-3.5 text-xs font-medium text-ink-2 ring-1 ring-inset ring-white/10 hover:text-ink-1"
-            >
-              {ex.label}
-            </button>
-          ))
-        )}
-      </div>
-
-      <div className="mt-3">
+      <div className="space-y-2">
+        <a
+          href="/api/products/template"
+          className="flex h-11 items-center justify-center gap-2 rounded-xl border border-line-strong bg-surface text-xs font-semibold text-ink-1"
+        >
+          <Download className="h-4 w-4" aria-hidden="true" /> Unduh Template Katalog Excel (.xlsx)
+        </a>
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-line-strong bg-surface text-xs font-semibold text-ink-1"
+        >
+          <Upload className="h-4 w-4" aria-hidden="true" /> Impor Katalog (File Excel .xlsx / .csv)
+        </button>
         <input
-          ref={fileInputRef}
+          ref={fileRef}
           type="file"
           accept=".csv,.txt,.xlsx"
           className="hidden"
-          onChange={handleFileSelected}
-        />
-        <Button
-          fullWidth
-          icon={Upload}
-          loading={composer.isImportingCsv}
-          onClick={() => {
-            fileInputRef.current?.click();
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) void composer.importCsv(file);
+            e.target.value = '';
           }}
-        >
-          Pilih File CSV / Excel Katalog Shopee
-        </Button>
-      </div>
-      <Button
-        variant="primary"
-        size="lg"
-        fullWidth
-        icon={Send}
-        className="mt-2"
-        loading={composer.isSubmitting}
-        disabled={!canSubmit}
-        onClick={() => composer.submit(composer.inputText)}
-      >
-        Simpan
-      </Button>
-    </Card>
-  );
-};
-
-/* ------------------------------ Produk ---------------------------------- */
-
-const ProductRow = ({ p, onAdjustStock }: { p: Product; onAdjustStock: (sku: string, delta: number) => void }) => {
-  const percentage = p.capacity > 0 ? Math.min(100, Math.max(0, (p.stock / p.capacity) * 100)) : 0;
-  const isLow = p.stock <= LOW_STOCK_AT;
-  const hpp = p.hpp || Math.round(p.price * 0.7); // fallback estimasi seperti versi lama
-  const hppEstimated = !p.hpp;
-  const margin = p.price > 0 ? Math.round(((p.price - hpp) / p.price) * 100) : 0;
-
-  return (
-    <li className="px-4 py-3.5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 pt-0.5">
-          <h3 className="truncate text-sm font-semibold text-ink-1">{p.name}</h3>
-          <p className="mt-0.5 truncate font-mono text-2xs text-ink-3">{p.sku}</p>
-        </div>
-        <div
-          role="group"
-          aria-label={`Stok ${p.name}`}
-          className="flex shrink-0 items-center rounded-xl bg-nested ring-1 ring-inset ring-white/10"
-        >
-          <button
-            type="button"
-            aria-label={`Kurangi stok ${p.name}`}
-            disabled={p.stock <= 0}
-            onClick={() => onAdjustStock(p.sku, -1)}
-            className="interactive-tap grid h-11 w-11 place-items-center rounded-xl text-ink-2 hover:text-ink-1 disabled:opacity-30"
-          >
-            <Minus className="h-4 w-4" aria-hidden="true" />
-          </button>
-          <span
-            aria-live="polite"
-            className={cn('w-10 text-center text-base font-bold tabular-nums', isLow ? 'text-amber-300' : 'text-ink-1')}
-          >
-            {p.stock}
-          </span>
-          <button
-            type="button"
-            aria-label={`Tambah stok ${p.name}`}
-            onClick={() => onAdjustStock(p.sku, 1)}
-            className="interactive-tap grid h-11 w-11 place-items-center rounded-xl text-ink-2 hover:text-ink-1"
-          >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-        <span className="text-sm font-bold tabular-nums text-amber-800">{formatRupiah(p.price)}</span>
-        <span className="text-xs tabular-nums text-ink-3">
-          {hppEstimated ? 'HPP ≈ ' : 'HPP '}
-          {formatRupiah(hpp)}
-        </span>
-        <Badge>Margin {margin}%</Badge>
-      </div>
-
-      <div className="mt-2.5">
-        <ProgressBar value={percentage} tone={isLow ? 'amber' : 'emerald'} label={`Level stok ${p.name}`} />
-        <div className="mt-1.5 flex items-center justify-between gap-2 text-xs">
-          <span className="tabular-nums text-ink-3">
-            Sisa {p.stock} {p.unit} dari kapasitas {p.capacity}
-          </span>
-          {isLow && (
-            <span className="inline-flex shrink-0 items-center gap-1 font-semibold text-amber-700">
-              <AlertTriangle className="h-3 w-3" aria-hidden="true" />
-              Hampir habis
-            </span>
-          )}
-        </div>
-      </div>
-    </li>
-  );
-};
-
-/* ------------------------------ Template -------------------------------- */
-
-const PresetRow = ({ preset, active, onUse }: { preset: Preset; active: boolean; onUse: (p: Preset) => void }) => {
-  const [expanded, setExpanded] = useState(false);
-  return (
-    <li className="px-4 py-3.5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 pt-0.5">
-          <h3 className="text-body font-semibold text-ink-1">{preset.label}</h3>
-          <p className="text-xs text-ink-3">{preset.desc}</p>
-        </div>
-        {active ? (
-          <Badge tone="emerald" icon={Check} className="mt-1">
-            Aktif
-          </Badge>
-        ) : (
-          <Button icon={Plus} onClick={() => onUse(preset)}>
-            Gunakan
-          </Button>
-        )}
-      </div>
-      <button
-        type="button"
-        aria-expanded={expanded}
-        onClick={() => setExpanded((v) => !v)}
-        className="interactive-tap mt-2.5 w-full rounded-xl bg-nested/70 px-3 py-2.5 text-left text-xs leading-5 text-ink-2"
-      >
-        <span className={cn(!expanded && 'line-clamp-2')}>{preset.text}</span>
-      </button>
-    </li>
-  );
-};
-
-/* ------------------------------- Tab ------------------------------------ */
-
-export const StockTab = ({ products = [], rules = [], composer, onAdjustStock, onAddRule, onRefresh }: StockTabProps) => {
-  const safeProducts = Array.isArray(products) ? products : [];
-  const safeRules = Array.isArray(rules) ? rules : [];
-  const [filter, setFilter] = useState<'all' | 'low'>('all');
-  const [refreshing, setRefreshing] = useState(false);
-  const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(
-    () => () => {
-      if (refreshTimer.current) clearTimeout(refreshTimer.current);
-    },
-    [],
-  );
-
-  const lowCount = safeProducts.filter((p) => p.stock <= LOW_STOCK_AT).length;
-  const activeRules = safeRules.filter((r) => r.enabled !== false).length;
-  const visible = filter === 'low' ? safeProducts.filter((p) => p.stock <= LOW_STOCK_AT) : safeProducts;
-
-  const handleRefresh = () => {
-    onRefresh();
-    setRefreshing(true);
-    refreshTimer.current = setTimeout(() => setRefreshing(false), 700);
-  };
-
-  const usePreset = (pr: Preset) => {
-    onAddRule({ name: pr.label, triggers: [pr.id], response: pr.text, enabled: true });
-    toast.success(`Template "${pr.label}" aktif!`);
-  };
-
-  return (
-    <div className="space-y-5 px-4 pb-6 pt-4">
-      <Composer composer={composer} />
-
-      <section aria-labelledby="rf-stock-heading" className="space-y-3">
-        <div className="flex items-center justify-between gap-2 px-1">
-          <h2 id="rf-stock-heading" className="text-sm font-semibold text-ink-1">
-            Inventori Stickeria
-          </h2>
-          <IconButton
-            icon={RefreshCw}
-            label="Muat ulang data"
-            size="lg"
-            onClick={handleRefresh}
-            className={cn(refreshing && '[&>svg]:animate-spin')}
-          />
-        </div>
-        <Segmented
-          value={filter}
-          onChange={setFilter}
-          ariaLabel="Filter produk"
-          size="sm"
-          options={[
-            { value: 'all', label: `Semua (${safeProducts.length})` },
-            { value: 'low', label: `Hampir habis (${lowCount})` },
-          ]}
         />
-        {visible.length === 0 ? (
-          <p className="rounded-2xl border border-line bg-surface px-4 py-8 text-center text-xs text-ink-3">
-            {safeProducts.length === 0
-              ? 'Belum ada produk. Tambahkan lewat perintah cepat di atas.'
-              : 'Semua stok aman, tidak ada yang hampir habis.'}
-          </p>
-        ) : (
-          <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
-            {visible.map((p) => (
-              <ProductRow key={p.sku} p={p} onAdjustStock={onAdjustStock} />
-            ))}
-          </ul>
-        )}
-      </section>
+      </div>
 
+      <div className="flex gap-2">
+        <input
+          type="text"
+          aria-label="Perintah stok dan aturan"
+          value={composer.inputText}
+          onChange={(e) => composer.setInputText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+              e.preventDefault();
+              if (composer.inputText.trim()) void composer.submit(composer.inputText);
+            }
+          }}
+          placeholder="contoh: tambah 10 STK-CAT-01"
+          className="h-11 min-w-0 flex-1 rounded-xl border border-line-strong bg-surface px-3 text-sm text-ink-1 outline-none placeholder:text-ink-3 focus:border-amber-500"
+        />
+        <button
+          type="button"
+          disabled={!composer.inputText.trim() || composer.isSubmitting}
+          onClick={() => void composer.submit(composer.inputText)}
+          className="inline-flex h-11 items-center rounded-xl bg-brand-deep px-4 text-xs font-bold text-white disabled:opacity-50"
+        >
+          Kirim
+        </button>
+      </div>
+
+      <div className="flex items-center justify-between px-1">
+        <h3 className="text-sm font-semibold text-ink-1">Inventori Stickeria</h3>
+        <button
+          type="button"
+          aria-label="Muat ulang data"
+          onClick={onRefresh}
+          className="grid h-8 w-8 place-items-center rounded-lg text-ink-3 hover:bg-nested"
+        >
+          <RefreshCw className="h-4 w-4" aria-hidden="true" />
+        </button>
+      </div>
+
+      <ul className="space-y-3">
+        {products.map((p) => (
+          <li key={p.sku} className="rounded-2xl border border-line bg-surface p-3.5">
+            <div className="flex items-start justify-between gap-2">
+              <p className="min-w-0 text-sm font-semibold leading-5 text-ink-1">{p.name}</p>
+              <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-2xs font-bold text-amber-900">
+                {p.stock} {p.unit}
+              </span>
+            </div>
+            <p className="mt-1 text-2xs text-ink-3">SKU: {p.sku}</p>
+            <div className="mt-2 flex items-center justify-between gap-2 rounded-xl bg-nested/60 px-2.5 py-2">
+              <span className="text-xs font-semibold text-ink-1">Harga: {formatRupiah(p.price)}</span>
+              <span className="text-2xs text-amber-800">
+                HPP: {formatRupiah(p.hpp)} (Margin{' '}
+                {p.price > 0 ? Math.round(((p.price - p.hpp) / p.price) * 100) : 0}%)
+              </span>
+            </div>
+            <div className="mt-2.5 flex items-center gap-2">
+              <button
+                type="button"
+                aria-label={`Kurangi stok ${p.name}`}
+                disabled={p.stock <= 0}
+                onClick={() => onAdjustStock(p.sku, -1)}
+                className="h-9 flex-1 rounded-lg border border-line-strong bg-surface text-xs font-bold text-ink-1 disabled:opacity-40"
+              >
+                -1
+              </button>
+              <button
+                type="button"
+                aria-label={`Tambah stok ${p.name}`}
+                onClick={() => onAdjustStock(p.sku, 1)}
+                className="h-9 flex-1 rounded-lg border border-line-strong bg-surface text-xs font-bold text-ink-1"
+              >
+                +1
+              </button>
+              <button
+                type="button"
+                aria-label={`Tambah 10 stok ${p.name}`}
+                onClick={() => onAdjustStock(p.sku, 10)}
+                className="h-9 flex-1 rounded-lg border border-line-strong bg-surface text-xs font-bold text-ink-1"
+              >
+                +10
+              </button>
+            </div>
+          </li>
+        ))}
+        {products.length === 0 && (
+          <li className="rounded-2xl border border-line bg-surface p-6 text-center text-xs text-ink-3">
+            Belum ada produk. Tambah produk atau impor Excel.
+          </li>
+        )}
+      </ul>
     </div>
   );
 };

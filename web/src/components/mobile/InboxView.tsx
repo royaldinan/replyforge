@@ -93,14 +93,11 @@ export const InboxView = ({ chat, isAutoPilot }: InboxViewProps) => {
                       <span className="shrink-0 text-2xs tabular-nums text-ink-3">{last?.time ?? ''}</span>
                     </div>
                     <p className="mt-0.5 truncate text-body text-ink-3">{previewOf(last)}</p>
-                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                      <Badge tone={status.tone}>{status.label}</Badge>
-                      <Badge icon={Package}>{t.itemIntent}</Badge>
-                      {paused && (
-                        <Badge tone="amber" icon={Hand}>
-                          AI dijeda
-                        </Badge>
-                      )}
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <Badge tone={t.channel === 'shopee' ? 'shopee' : 'wa'}>
+                        {t.channel === 'shopee' ? 'Shopee' : 'WhatsApp'}
+                      </Badge>
+                      <span className="text-2xs text-ink-3">Percakapan aktif</span>
                     </div>
                   </div>
                   {t.unread > 0 && (
