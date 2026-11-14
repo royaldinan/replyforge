@@ -5,7 +5,6 @@ import { asHandle, formatClock, formatRupiah, formatRupiahCompact } from '../../
 import type { Order } from '../../types';
 import type { Thread } from './data';
 import { Badge, Button, ChannelBadge, EmptyState, IconButton, Segmented, cn, toChannel } from '../ui';
-import { OverviewStrip } from './OverviewStrip';
 import { ORDER_STATE_META, getOrderState, isShippable, orderTotal, type OrderState } from './orderState';
 
 interface OrdersTabProps {
@@ -161,13 +160,6 @@ export const OrdersTab = ({ orders, onAdjustStock, onRefresh, onUpdateOrderStatu
 
   return (
     <div className="space-y-4 px-4 pb-6 pt-4">
-      <OverviewStrip
-        items={[
-          { label: 'Perlu dikirim', value: shippable, tone: shippable > 0 ? 'emerald' : 'neutral' },
-          { label: 'Menunggu bayar', value: pending, tone: pending > 0 ? 'amber' : 'neutral' },
-          { label: 'Omzet lunas', value: formatRupiahCompact(revenue) },
-        ]}
-      />
 
       <div className="flex items-center justify-between gap-2 px-1">
         <h2 className="text-sm font-semibold text-ink-1">Transaksi masuk</h2>
@@ -236,7 +228,7 @@ export const OrdersTab = ({ orders, onAdjustStock, onRefresh, onUpdateOrderStatu
             title={orders.length === 0 ? 'Belum ada transaksi' : 'Tidak ada pesanan di filter ini'}
             description={
               orders.length === 0
-                ? 'Picu simulasi dari laptop untuk melihat live order capture!'
+                ? 'Pesanan dari chat WhatsApp dan Shopee akan muncul di sini.'
                 : 'Coba pilih filter lain untuk melihat pesanan.'
             }
           />
