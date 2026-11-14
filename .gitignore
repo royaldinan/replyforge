@@ -23,3 +23,12 @@ graphify-out/cache/
 auto_scheduler.py
 scheduler_state.json
 scheduler.log
+
+# local automation tooling
+scripts/
+scheduler_state.json
+scheduler.log
+
+push.log
+ui.xml
+ui_dump.xml
