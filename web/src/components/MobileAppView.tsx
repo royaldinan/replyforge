@@ -126,6 +126,11 @@ export const MobileAppView: React.FC<Props> = ({
                   onAdjustStock={onAdjustStock}
                   onRefresh={onRefreshData}
                   onUpdateOrderStatus={onUpdateOrderStatus}
+                  threads={chat.threads}
+                  onOpenThread={(id) => {
+                    chat.open(id);
+                    setActiveTab('chat');
+                  }}
                 />
               )}
               {activeTab === 'system' && (

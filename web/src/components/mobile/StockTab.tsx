@@ -300,19 +300,6 @@ export const StockTab = ({ products = [], rules = [], composer, onAdjustStock, o
         )}
       </section>
 
-      <section aria-labelledby="rf-preset-heading" className="space-y-3">
-        <div className="px-1">
-          <h2 id="rf-preset-heading" className="text-sm font-semibold text-ink-1">
-            Template balasan
-          </h2>
-          <p className="mt-0.5 text-xs text-ink-3">Pasang sekali, AI memakainya saat pembeli menanyakan hal serupa.</p>
-        </div>
-        <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
-          {PRESETS.map((pr) => (
-            <PresetRow key={pr.id} preset={pr} active={safeRules.some((r) => r.name === pr.label)} onUse={usePreset} />
-          ))}
-        </ul>
-      </section>
     </div>
   );
 };

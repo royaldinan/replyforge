@@ -143,20 +143,6 @@ describe('Mobile · Stok & AI', () => {
     expect(screen.getByRole('progressbar', { name: 'Level stok Produk Nol' })).toHaveAttribute('aria-valuenow', '0');
   });
 
-  it('template: Gunakan → onAddRule persis seperti versi lama; yang sudah aktif ditandai', async () => {
-    const user = userEvent.setup();
-    const { props } = await renderMobile();
-    await goto(user, /^Stok & AI/);
-    const row = screen.getByRole('heading', { name: 'Stok Kosong' }).closest('li') as HTMLElement;
-    await user.click(within(row).getByRole('button', { name: 'Gunakan' }));
-    expect(props.onAddRule).toHaveBeenCalledWith({ name: 'Stok Kosong', triggers: ['habis'], response: PRESETS[1]!.text, enabled: true });
-    expect(t.success).toHaveBeenCalledWith('Template "Stok Kosong" aktif!');
-    // fixtures.rules sudah punya "Stok Ready" → tidak ada tombol Gunakan di barisnya
-    const active = screen.getByRole('heading', { name: 'Stok Ready' }).closest('li') as HTMLElement;
-    expect(within(active).getByText('Aktif')).toBeInTheDocument();
-    expect(within(active).queryByRole('button', { name: 'Gunakan' })).toBeNull();
-  });
-
   it('perintah cepat: Simpan → onRunConversationalCommand → toast, bersihkan input, refresh', async () => {
     const user = userEvent.setup();
     const { props } = await renderMobile();

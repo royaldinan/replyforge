@@ -3,6 +3,7 @@ import { Link2, Receipt, RefreshCw, Truck } from 'lucide-react';
 import { toast } from 'sonner';
 import { asHandle, formatClock, formatRupiah, formatRupiahCompact } from '../../lib/format';
 import type { Order } from '../../types';
+import type { Thread } from './data';
 import { Badge, Button, ChannelBadge, EmptyState, IconButton, Segmented, cn, toChannel } from '../ui';
 import { OverviewStrip } from './OverviewStrip';
 import { ORDER_STATE_META, getOrderState, isShippable, orderTotal, type OrderState } from './orderState';
@@ -12,9 +13,12 @@ interface OrdersTabProps {
   onAdjustStock: (sku: string, delta: number) => void;
   onRefresh: () => void;
   onUpdateOrderStatus?: (id: number, status: 'reserved' | 'paid' | 'cancelled') => void;
+  /** Percakapan Shopee yang belum jadi order = calon pembeli. */
+  threads?: Thread[];
+  onOpenThread?: (id: string) => void;
 }
 
-type Filter = 'all' | 'paid' | 'pending' | 'cancelled';
+type Filter = 'all' | 'paid' | 'pending' | 'cancelled' | 'lead';
 
 const matchesFilter = (state: OrderState, filter: Filter): boolean => {
   if (filter === 'all') return true;
@@ -125,7 +129,7 @@ const OrderCard = ({
   );
 };
 
-export const OrdersTab = ({ orders, onAdjustStock, onRefresh, onUpdateOrderStatus }: OrdersTabProps) => {
+export const OrdersTab = ({ orders, onAdjustStock, onRefresh, onUpdateOrderStatus, threads = [], onOpenThread }: OrdersTabProps) => {
   const [filter, setFilter] = useState<Filter>('all');
   const [refreshing, setRefreshing] = useState(false);
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -189,10 +193,43 @@ export const OrdersTab = ({ orders, onAdjustStock, onRefresh, onUpdateOrderStatu
           { value: 'paid', label: 'Lunas' },
           { value: 'pending', label: 'Menunggu' },
           { value: 'cancelled', label: 'Batal' },
+          { value: 'lead', label: 'Calon Pembeli' },
         ]}
       />
 
-      {visible.length === 0 ? (
+      {filter === 'lead' ? (
+        <div className="space-y-2.5">
+          {threads.filter((t) => t.channel === 'shopee').length === 0 ? (
+            <div className="rounded-2xl border border-line bg-surface">
+              <EmptyState
+                icon={Receipt}
+                title="Belum ada calon pembeli"
+                description="Chat Shopee baru akan muncul di sini sebelum checkout."
+              />
+            </div>
+          ) : (
+            threads
+              .filter((t) => t.channel === 'shopee')
+              .map((t) => (
+                <div key={t.id} className="rounded-2xl border border-line bg-surface p-3.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-ink-1">{t.name}</p>
+                      <p className="truncate text-xs text-ink-3">{t.handle} · Shopee</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onOpenThread?.(t.id)}
+                      className="inline-flex h-9 shrink-0 items-center rounded-xl bg-[#EE4D2D] px-3 text-xs font-bold text-white"
+                    >
+                      Buka chat
+                    </button>
+                  </div>
+                </div>
+              ))
+          )}
+        </div>
+      ) : visible.length === 0 ? (
         <div className="rounded-2xl border border-line bg-surface">
           <EmptyState
             icon={Receipt}
