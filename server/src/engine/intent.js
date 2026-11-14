@@ -32,7 +32,7 @@ export function matchCustomRules(text, settings, buyer = 'kak') {
         stok: matchedProduct ? matchedProduct.stock : 10,
         min_grosir: settings.minGrosir || 3,
         jam_cutoff: settings.cutoff || '16.00',
-        toko: settings.storeName || 'Lina Shop',
+        toko: settings.storeName || 'Stickeria',
       };
       let reply = fillTemplate(rule.response, vars);
       if (settings.tone === 'formal') reply = formalize(reply);
@@ -143,7 +143,7 @@ export function parseOrderIntent(text, buyer = 'kak') {
 }
 
 // Conversational Store & Rule Builder (Chat-to-Config)
-// Example: "Masukin data Lina Shop: Paket Stiker Kucing stok 50 harga 15 ribu HPP 6 ribu, Gantungan Kunci Capybara stok 30 harga 25 ribu HPP 12 ribu. Kalau ada yang tanya pengiriman bilang dikirim hari yang sama maksimal jam 4 sore."
+// Example: "Masukin data Stickeria: Paket Stiker Kucing stok 50 harga 15 ribu HPP 6 ribu, Gantungan Kunci Capybara stok 30 harga 25 ribu HPP 12 ribu. Kalau ada yang tanya pengiriman bilang dikirim hari yang sama maksimal jam 4 sore."
 export function parseConversationalCommand(text) {
   const norm = normalize(text);
   const result = {

@@ -298,7 +298,7 @@ async function executeMergedInquiry(key, resolve) {
   const orderIntent = parseOrderIntent(mergedText, buyer);
   let orderCreated = null;
 
-  if (orderIntent && orderIntent.isOrder) {
+  if (orderIntent && orderIntent.isOrder && channel !== 'shopee') {
     try {
       const missingFields = anomaly.isIncompleteOrder ? anomaly.missingFields : [];
       const isIncomplete = missingFields.length > 0;
@@ -438,7 +438,7 @@ async function handleOutgoingReply({
   const settings = getSettings();
 
   // If mode is Copilot (Human-in-the-Loop 1-Tap Mode)
-  if (settings.mode === 'copilot') {
+  if (settings.mode === 'copilot' || channel === 'shopee') {
     const draft = addDraft({
       threadId,
       buyer,

@@ -81,7 +81,17 @@ function runLocalEngine(text, buyer, channel, settings, startTime) {
   const order = parseOrderIntent(text, buyer);
   if (order && order.isOrder) {
     const bName = firstName(buyer);
-    const reply = `Siap kak ${bName}! Order ${order.quantity} ${order.product.unit} ${order.product.name} totalnya ${rupiah(order.totalPrice)} sudah kami amankan ya. Silakan transfer ke ${settings.bankAccount || 'BCA 5271889021 a.n Toko'}. Kalau transfer sebelum jam ${settings.cutoff}, paket meluncur hari ini juga ya!`;
+    if (channel === 'shopee') {
+      // Shopee = Smart Copilot: no local order, no bank transfer instructions.
+      return {
+        reply: `Siap kak ${bName}! ${order.product.name} ready stok siap kirim hari ini dari ${settings.storeCity || 'Bandung'}. Silakan langsung checkout melalui keranjang Shopee ya kak! ✨`,
+        engine: 'Built-in Local Smart Engine',
+        latencyMs: Math.max(1, Date.now() - startTime),
+        isFallback: true,
+        productSku: order.sku,
+      };
+    }
+    const reply = `Siap kak ${bName}! Order ${order.quantity} ${order.product.unit} ${order.product.name} totalnya ${rupiah(order.totalPrice)} sudah kami amankan ya. Silakan transfer ke ${settings.bankAccount || 'SeaBank 901483182051 a.n. Ferdinand Manurung'}. Kalau transfer sebelum jam ${settings.cutoff}, paket meluncur hari ini juga ya!`;
     return {
       reply,
       engine: 'Built-in Local Smart Engine',
@@ -120,7 +130,7 @@ function runLocalEngine(text, buyer, channel, settings, startTime) {
 
   // 4. Default Humanized Friendly Response
   const bName = firstName(buyer);
-  const defaultReply = `Halo kak ${bName}! Terima kasih sudah menghubungi ${settings.storeName || 'Lina Shop'}. Ada yang bisa kami bantu kak? Koleksi stiker gemoy dan gantungan kunci akrilik kami ready siap kirim hari ini ya!`;
+  const defaultReply = `Halo kak ${bName}! Terima kasih sudah menghubungi ${settings.storeName || 'Stickeria'}. Ada yang bisa kami bantu kak? Paket Stiker Kucing Gemoy kami ready stok siap kirim hari ini ya!`;
 
   return {
     reply: defaultReply,

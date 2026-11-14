@@ -1,48 +1,15 @@
-// Case Study: "Lina Shop", Cute Accessories & Creative Merchandise Store selling on WhatsApp Business & Shopee.
+// Case Study: "Stickeria", Cute Accessories & Creative Merchandise Store selling on WhatsApp Business & Shopee.
 export const SEED_PRODUCTS = [
   {
     sku: 'STK-CAT-01',
-    name: 'Paket Stiker Kucing Gemoy Vinyl Waterproof',
-    aliases: ['paket stiker kucing gemoy', 'stiker kucing gemoy', 'stiker kucing', 'sticker kucing', 'stiker vinyl', 'stiker gemoy', 'stiker', 'sticker', 'sticker cat', 'stiker cat'],
+    name: 'Paket Stiker Kucing Gemoy Vinyl Waterproof Lucu Anti Air Die Cut Isi 20 Pcs',
+    aliases: ['paket stiker kucing gemoy', 'stiker kucing gemoy', 'stiker kucing', 'sticker kucing', 'stiker vinyl', 'stiker gemoy', 'stiker', 'sticker', 'sticker cat', 'stiker cat', 'kucing'],
     unit: 'pack',
     price: 15000,
     hpp: 6000,
     stock: 50,
     capacity: 100,
     max_order_normal: 15,
-  },
-  {
-    sku: 'KC-ACRYL-02',
-    name: 'Gantungan Kunci Akrilik Capybara 2 Sisi',
-    aliases: ['gantungan kunci akrilik capybara', 'gantungan kunci capybara', 'keychain capybara', 'gantungan kunci', 'keychain', 'capybara'],
-    unit: 'pcs',
-    price: 25000,
-    hpp: 12000,
-    stock: 30,
-    capacity: 60,
-    max_order_normal: 10,
-  },
-  {
-    sku: 'GPT-FLW-03',
-    name: 'Griptok HP Akrilik Bunga Daisy',
-    aliases: ['griptok hp akrilik bunga daisy', 'griptok daisy', 'griptok bunga', 'griptok hp', 'griptok', 'popsocket daisy'],
-    unit: 'pcs',
-    price: 20000,
-    hpp: 8000,
-    stock: 25,
-    capacity: 50,
-    max_order_normal: 10,
-  },
-  {
-    sku: 'PC-HLD-04',
-    name: 'Photocard Holder Plushie Kelinci Lucu',
-    aliases: ['photocard holder plushie kelinci', 'photocard holder kelinci', 'pc holder kelinci', 'pc holder plushie', 'photocard holder', 'pc holder'],
-    unit: 'pcs',
-    price: 35000,
-    hpp: 18000,
-    stock: 15,
-    capacity: 30,
-    max_order_normal: 5,
   },
 ];
 
@@ -65,7 +32,7 @@ export const SEED_RULES = [
     name: 'Info Pembayaran & Rekening',
     triggers: ['bayar', 'transfer', 'rekening', 'cod', 'qris', 'pembayaran', 'bca'],
     response:
-      'Untuk pembayaran Shopee bisa langsung lewat aplikasi kak (ShopeePay, SPayLater, COD). Untuk WhatsApp bisa transfer BCA 5271 8890 21 a.n. Lina Shop atau QRIS ya kak ✅',
+      'Untuk pembayaran Shopee bisa langsung lewat aplikasi kak (ShopeePay, SPayLater, COD). Untuk WhatsApp bisa transfer SeaBank 901483182051 a.n. Ferdinand Manurung ya kak ✅',
     source: 'seed',
   },
 ];
@@ -111,32 +78,32 @@ export const PRESETS = [
 ];
 
 export const DEFAULT_STORE_ACCOUNT = {
-  email: 'owner@linashop.id',
+  email: 'ferdinandmanurung899@gmail.com',
   phone: '085183250750',
-  ownerName: 'Lina Permata',
-  storeName: 'Lina Shop',
-  category: 'Aksesoris & Merchandise Kreatif',
-  shopeeHandle: '@linashop.id',
+  ownerName: 'Ferdinand Manurung',
+  storeName: 'Stickeria',
+  category: 'Stiker & Aksesoris Kreatif',
+  shopeeHandle: '@royaldinan',
   whatsappNumber: '0851-8325-0750',
-  bankAccount: 'BCA 5271 8890 21 a.n. Lina Shop',
-  shopeeConnected: false,
+  bankAccount: 'SeaBank 901483182051 a.n. Ferdinand Manurung',
+  shopeeConnected: true,
   whatsappConnected: true,
   osNotificationGranted: true,
   onboardingCompleted: true,
 };
 
 export const DEFAULT_SETTINGS = {
-  storeName: 'Lina Shop',
-  ownerName: 'Lina Permata',
-  email: 'owner@linashop.id',
-  shopeeHandle: '@linashop.id',
+  storeName: 'Stickeria',
+  ownerName: 'Ferdinand Manurung',
+  email: 'ferdinandmanurung899@gmail.com',
+  shopeeHandle: '@royaldinan',
   whatsappNumber: '0851-8325-0750',
-  shopeeConnected: false,
+  shopeeConnected: true,
   whatsappConnected: true,
   osNotificationGranted: true,
   onboardingCompleted: true,
   baseUrl: process.env.REPLYFORGE_BASE_URL || 'http://localhost:20128/v1',
-  apiKey: '',
+  apiKey: process.env.REPLYFORGE_API_KEY || '',
   model: process.env.REPLYFORGE_MODEL || 'ag/gemini-3.8-flash-low',
   engine: 'auto', // auto = 9Router first, local engine on failure | gateway | local
   gatewayTimeoutMs: 6000,
@@ -152,13 +119,13 @@ export const DEFAULT_SETTINGS = {
   blockGroups: true,
   whitelist: {
     'com.whatsapp.w4b': true,
-    'com.whatsapp': true,
+    'com.whatsapp': false,
     'com.shopee.id': true,
     'com.shopee.shopeeseller': true,
     'id.replyforge.agent': true,
     'com.android.shell': true,
   },
-  bankAccount: 'BCA 5271 8890 21 a.n. Lina Shop',
+  bankAccount: 'SeaBank 901483182051 a.n. Ferdinand Manurung',
 };
 
 export const CHANNEL_PACKAGES = {
