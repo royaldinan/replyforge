@@ -40,8 +40,9 @@ import {
 } from './types';
 
 export default function App() {
-  const isMobileQuery = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mobile') === '1';
-  const [viewMode, setViewMode] = useState<'studio' | 'mobile'>(isMobileQuery ? 'mobile' : 'studio');
+  const isStudioQuery = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('view') === 'studio';
+  // Final build default = the APK mirror (kiosk). The legacy dashboard only opens with ?view=studio.
+  const [viewMode, setViewMode] = useState<'studio' | 'mobile'>(isStudioQuery ? 'studio' : 'mobile');
   const [desktopTab, setDesktopTab] = useState<'studio' | 'rules' | 'ledger' | 'green'>('studio');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -59,10 +60,10 @@ export default function App() {
   const [cacheEntries, setCacheEntries] = useState<CacheEntry[]>([]);
   const [privacyLogs, setPrivacyLogs] = useState<PrivacyLog[]>([]);
   const [settings, setSettings] = useState<Settings>({
-    storeName: 'Lina Shop',
-    baseUrl: 'http://localhost:20128/v1',
+    storeName: 'Stickeria',
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
     apiKey: '',
-    model: 'ag/gemini-3.8-flash-low',
+    model: 'gemini-3.8-flash',
     engine: 'auto',
     mode: 'autopilot',
     tone: 'santai',
@@ -74,8 +75,9 @@ export default function App() {
     whitelist: {
       'com.whatsapp.w4b': true,
       'com.shopee.id': true,
+      'com.shopee.shopeeseller': true,
     },
-    bankAccount: 'BCA 5271 8890 21 a.n. Lina Shop',
+    bankAccount: 'SeaBank 901483182051 a.n. Ferdinand Manurung',
   });
   const [metrics, setMetrics] = useState<Metrics>({
     messages: 0,
@@ -110,13 +112,13 @@ export default function App() {
         fetch('/api/alerts').then((r) => (r.ok ? r.json() : [])),
         fetch('/api/auth/me').then((r) => (r.ok ? r.json() : null)),
       ]);
-      setProducts(prodRes || []);
-      setRules(rulesRes || []);
-      setOrders(ordersRes || []);
-      setCacheEntries(cacheRes || []);
-      setPrivacyLogs(privRes || []);
-      setSettings(setRes || {});
-      setMetrics(metRes || {});
+      setProducts(Array.isArray(prodRes) ? prodRes : []);
+      setRules(Array.isArray(rulesRes) ? rulesRes : []);
+      setOrders(Array.isArray(ordersRes) ? ordersRes : []);
+      setCacheEntries(Array.isArray(cacheRes) ? cacheRes : []);
+      setPrivacyLogs(Array.isArray(privRes) ? privRes : []);
+      setSettings(setRes && typeof setRes === 'object' && !Array.isArray(setRes) ? setRes : {});
+      setMetrics(metRes && typeof metRes === 'object' && !Array.isArray(metRes) ? metRes : {});
       setAlerts(Array.isArray(alertsRes) ? alertsRes : []);
       if (authRes?.account) {
         setStoreAccount(authRes.account);
@@ -142,6 +144,10 @@ export default function App() {
 
   useEffect(() => {
     fetchData();
+
+    const interval = setInterval(() => {
+      fetchData();
+    }, 3000);
 
     // Connect to Server-Sent Events (SSE) for Real-Time Animated Telemetry Pipeline
     const sse = new EventSource('/api/telemetry/stream');
@@ -178,7 +184,10 @@ export default function App() {
       }
     };
 
-    return () => sse.close();
+    return () => {
+      clearInterval(interval);
+      sse.close();
+    };
   }, []);
 
   // Simulator Message Sender (Sends webhook to backend)
@@ -334,10 +343,11 @@ export default function App() {
     }
   };
 
-  // IF IN PURE MOBILE VIEW (Physical Phone Screen or Mobile toggle)
+  // LOCALHOST KIOSK VIEW — mirrors the Android APK (same 4 tabs, same palette).
+  // Desktop shows the phone frame with a short jury-facing caption; phones render full-bleed.
   if (viewMode === 'mobile') {
     return (
-      <div className="min-h-screen bg-canvas flex flex-col items-center justify-start">
+      <div className="min-h-screen bg-canvas">
         <Toaster
           theme="light"
           position="top-center"
@@ -374,25 +384,63 @@ export default function App() {
           onClose={() => setTutorialOpen(false)}
           onOpenConnectWizard={() => setConnectWizardOpen(true)}
         />
-        <MobileAppView
-          products={products}
-          rules={rules}
-          orders={orders}
-          settings={settings}
-          metrics={metrics}
-          privacyLogs={privacyLogs}
-          alerts={alerts}
-          onResolveAlert={handleResolveAlert}
-          onOpenConnectWizard={() => setConnectWizardOpen(true)}
-          onOpenAuthModal={() => setAuthModalOpen(true)}
-          onOpenTutorial={() => setTutorialOpen(true)}
-          onUpdateSettings={handleUpdateSettings}
-          onAdjustStock={handleAdjustStock}
-          onUpdateOrderStatus={handleUpdateOrderStatus as any}
-          onAddRule={handleAddRule}
-          onRunConversationalCommand={handleRunConversationalCommand}
-          onRefreshData={fetchData}
-        />
+
+        <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center gap-8 px-0 py-0 lg:flex-row lg:items-center lg:gap-16 lg:px-8 lg:py-10">
+          <aside className="hidden w-full max-w-sm flex-col gap-5 lg:flex">
+            <div className="flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 text-sm font-extrabold text-zinc-950 shadow-gold ring-1 ring-inset ring-amber-500/40">
+                RF
+              </span>
+              <div>
+                <h1 className="text-xl font-extrabold tracking-tight text-ink-1">ReplyForge</h1>
+                <p className="text-xs font-medium text-ink-3">Seller Center · Localhost Companion</p>
+              </div>
+            </div>
+            <p className="text-sm leading-6 text-ink-2">
+              Tampilan web ini adalah <strong>kembaran 1:1 aplikasi Android</strong> yang dipasang di HP toko.
+              Empat menu saja: Chat, Stok &amp; AI, Transaksi, dan Sistem — tanpa panel simulasi yang tidak dipakai di lapangan.
+            </p>
+            <ul className="space-y-2.5 text-xs leading-5 text-ink-2">
+              <li className="flex gap-2 rounded-xl border border-line bg-surface p-3">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                <span><strong>WhatsApp Business — Autopilot.</strong> Balasan, pesanan, dan potong stok otomatis di perangkat.</span>
+              </li>
+              <li className="flex gap-2 rounded-xl border border-line bg-surface p-3">
+                <Smartphone className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" aria-hidden="true" />
+                <span><strong>Shopee Seller — Smart Copilot.</strong> AI menyiapkan draf; penjual yang menekan kirim &amp; potong stok.</span>
+              </li>
+              <li className="flex gap-2 rounded-xl border border-line bg-surface p-3">
+                <Zap className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" aria-hidden="true" />
+                <span><strong>Verifikasi 1 menit.</strong> Jalankan <code className="rounded bg-nested px-1 py-0.5 font-mono text-[11px]">localhost:5173</code>, lalu buktikan APK tetap membalas setelah kabel USB dicabut.</span>
+              </li>
+            </ul>
+            <p className="text-2xs text-ink-3">
+              Data demo toko Stickeria · SeaBank 901483182051 a.n. Ferdinand Manurung
+            </p>
+          </aside>
+
+          <div className="w-full max-w-[430px] overflow-hidden bg-app lg:rounded-[2.6rem] lg:border-[10px] lg:border-zinc-900 lg:shadow-pop">
+            <MobileAppView
+              products={products}
+              rules={rules}
+              orders={orders}
+              settings={settings}
+              metrics={metrics}
+              privacyLogs={privacyLogs}
+              alerts={alerts}
+              onResolveAlert={handleResolveAlert}
+              onOpenConnectWizard={() => setConnectWizardOpen(true)}
+              onOpenAuthModal={() => setAuthModalOpen(true)}
+              onOpenTutorial={() => setTutorialOpen(true)}
+              onUpdateSettings={handleUpdateSettings}
+              onAdjustStock={handleAdjustStock}
+              onUpdateOrderStatus={handleUpdateOrderStatus as any}
+              onAddRule={handleAddRule}
+              onRunConversationalCommand={handleRunConversationalCommand}
+              onRefreshData={fetchData}
+            />
+          </div>
+        </div>
       </div>
     );
   }
@@ -456,7 +504,7 @@ export default function App() {
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-bold text-base tracking-tight text-ink-1">ReplyForge</h1>
                 <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 ring-1 ring-inset ring-amber-400/60">
-                  {settings.storeName || 'Lina Shop'}
+                  {settings.storeName || 'Stickeria'}
                 </span>
                 <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-300 hidden sm:inline-flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -468,7 +516,7 @@ export default function App() {
                 </span>
               </div>
               <p className="text-[11px] text-ink-3 mt-0.5">
-                Asisten Otomasi Chat, Proteksi HPP, &amp; Sinkronisasi Stok UMKM ({storeAccount?.whatsappNumber || '0851-8325-0750'} · {storeAccount?.shopeeHandle || '@linashop.id'})
+                Asisten Otomasi Chat, Proteksi HPP, &amp; Sinkronisasi Stok UMKM ({storeAccount?.whatsappNumber || '0851-8325-0750'} · {storeAccount?.shopeeHandle || '@royaldinan'})
               </p>
             </div>
           </div>

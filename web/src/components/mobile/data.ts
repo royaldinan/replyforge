@@ -208,7 +208,7 @@ export const MOCK_CSV = [
 ].join('\n');
 
 export const VOICE_SAMPLE =
-  'Masukin data Lina Shop: Paket Stiker Kucing Gemoy stok 50 harga 15 ribu HPP 6 ribu, Gantungan Kunci Capybara stok 30 harga 25 ribu HPP 12 ribu. Kalau ada yang tanya pengiriman bilang dikirim hari yang sama maksimal jam 4 sore.';
+  'Masukin data Stickeria: Paket Stiker Kucing Gemoy stok 50 harga 15 ribu HPP 6 ribu. Kalau ada yang tanya pengiriman bilang dikirim hari yang sama maksimal jam 4 sore.';
 
 export const COMMAND_EXAMPLES: Array<{ label: string; text: string }> = [
   { label: 'Update stok & harga', text: 'Paket Stiker Kucing stok 50 harga 15 ribu HPP 6 ribu' },

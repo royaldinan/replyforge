@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { ChevronDown, Cpu, Leaf, MessageCircle, ShieldCheck, ShoppingBag, Smartphone, Usb } from 'lucide-react';
+import { BatteryCharging, ChevronDown, Cpu, Eye, EyeOff, Key, Leaf, MessageCircle, ShieldCheck, ShoppingBag, Smartphone, Usb } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { toast } from 'sonner';
 import { formatClock } from '../../lib/format';
 import type { Metrics, PrivacyLog, Settings } from '../../types';
 import { Badge, Button, Card, CardHeader, IconTile, cn } from '../ui';
@@ -91,9 +92,11 @@ export const SystemTab = ({
   /* Log privasi */
   const shownLogs = showAllLogs ? privacyLogs : privacyLogs.slice(0, LOGS_COLLAPSED);
 
-  /* Model AI */
+  /* Model AI & API Key */
+  const [localApiKey, setLocalApiKey] = useState(settings.apiKey || '');
+  const [showKey, setShowKey] = useState(false);
   const modelIds = gateway.models.map((m) => m.id);
-  const options = modelIds.length > 0 ? [...modelIds] : [DEFAULT_MODEL];
+  const options = modelIds.length > 0 ? [...modelIds] : [DEFAULT_MODEL, 'gemini-3.8-flash', 'gemini-2.0-flash'];
   if (settings.model && !options.includes(settings.model)) options.unshift(settings.model);
   const selectedModel = settings.model || options[0] || DEFAULT_MODEL;
   const modelHelper =
@@ -103,6 +106,20 @@ export const SystemTab = ({
         ? `${modelIds.length} model tersedia dari gateway`
         : 'Gateway belum terjangkau, memakai model bawaan.';
 
+  const handleSaveApiKey = () => {
+    onUpdateSettings({ apiKey: localApiKey.trim(), model: selectedModel });
+    toast.success('Kunci API & model AI berhasil disimpan!');
+  };
+
+  const handleOpenBatteryOptimization = () => {
+    const bridge = (window as any).ReplyForgeAndroid;
+    if (bridge?.openBatteryOptimizationSettings) {
+      bridge.openBatteryOptimizationSettings();
+    } else {
+      toast.info('Buka Setelan HP > Baterai > Penghemat Baterai > Pilih ReplyForge "Jangan Optimalkan".');
+    }
+  };
+
   return (
     <div className="space-y-4 px-4 pb-6 pt-4">
       <Card padding="none">
@@ -111,60 +128,29 @@ export const SystemTab = ({
             level={2}
             icon={Smartphone}
             tone="amber"
-            title="Status jembatan hardware & akun"
-            description="Koneksi HP, aplikasi toko, dan akun penjual."
+            title="Koneksi kanal penjualan"
+            description="WhatsApp Business dan Shopee Seller yang terhubung ke agen."
             flush
           />
         </div>
         <ul className="divide-y divide-line border-t border-line">
-          <ConnectionRow icon={ShoppingBag} name="Shopee Seller App" status="Terhubung" />
+          <ConnectionRow icon={ShoppingBag} name="Shopee Seller App (@royaldinan)" status="Terhubung" />
           <ConnectionRow icon={MessageCircle} name="WhatsApp Business" status="Terhubung" />
-          <ConnectionRow icon={Usb} name="USB Bridge Laptop" status="Aktif (tcp:8088)" />
         </ul>
-        {(onOpenConnectWizard || onOpenAuthModal) && (
-          <div className="flex flex-wrap gap-2 border-t border-line bg-nested/40 px-4 py-3">
-            {onOpenConnectWizard && (
-              <Button variant="primary" size="sm" onClick={onOpenConnectWizard}>
-                Atur Koneksi WA &amp; Shopee
-              </Button>
-            )}
-            {onOpenAuthModal && (
-              <Button variant="secondary" size="sm" onClick={onOpenAuthModal}>
-                Akun Toko ({settings.storeName || 'Lina Shop'})
-              </Button>
-            )}
-          </div>
-        )}
+        <div className="flex flex-wrap gap-2 border-t border-line bg-nested/40 px-4 py-3">
+          {onOpenConnectWizard && (
+            <Button variant="primary" size="sm" onClick={onOpenConnectWizard}>
+              Atur WA &amp; Shopee
+            </Button>
+          )}
+          {onOpenAuthModal && (
+            <Button variant="secondary" size="sm" onClick={onOpenAuthModal}>
+              Akun Toko
+            </Button>
+          )}
+        </div>
       </Card>
 
-      <Card>
-        <CardHeader
-          level={2}
-          icon={Leaf}
-          tone="emerald"
-          title="Efisiensi Green IT"
-          description="Balasan berulang dijawab dari cache di HP, tanpa memanggil AI cloud."
-        />
-        <div className="flex items-center gap-4">
-          <div className="relative shrink-0">
-            <Gauge percent={ratioPercent} />
-            <span className="absolute inset-0 grid place-items-center text-sm font-bold tabular-nums text-amber-800">{ratioText}</span>
-          </div>
-          <div className="min-w-0">
-            <p className="text-body font-semibold text-ink-1">Cache hit ratio</p>
-            <p className="mt-0.5 text-xs leading-5 text-ink-3">Respons 0 ms langsung dari perangkat.</p>
-          </div>
-        </div>
-        <dl className="mt-4 grid grid-cols-3 gap-2">
-          {greenStats.map((s) => (
-            <div key={s.label} className="min-w-0 rounded-xl bg-nested/60 p-3">
-              <dt className="min-h-[2rem] text-2xs leading-4 text-ink-3">{s.label}</dt>
-              <dd className="mt-1 truncate text-lg font-bold leading-6 tabular-nums text-ink-1">{s.value}</dd>
-              <dd className="text-2xs text-ink-3">{s.unit}</dd>
-            </div>
-          ))}
-        </dl>
-      </Card>
 
       <Card>
         <CardHeader
@@ -205,24 +191,67 @@ export const SystemTab = ({
       </Card>
 
       <Card>
-        <CardHeader level={2} icon={Cpu} tone="indigo" title="Model AI 9Router" description={modelHelper} />
-        <div className="relative">
-          <select
-            aria-label="Model AI"
-            value={selectedModel}
-            onChange={(e) => onUpdateSettings({ model: e.target.value })}
-            className={cn(
-              'h-11 w-full appearance-none rounded-xl border border-white/10 bg-nested pl-3.5 pr-10 text-body text-ink-1 outline-none transition-colors duration-150',
-              'focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20',
-            )}
-          >
-            {options.map((id) => (
-              <option key={id} value={id}>
-                {modelIds.length === 0 && id === DEFAULT_MODEL ? `${id} (Default)` : id}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" aria-hidden="true" />
+        <CardHeader
+          level={2}
+          icon={Cpu}
+          tone="indigo"
+          title="Kecerdasan AI (Cloud Gemini / Groq)"
+          description={modelHelper}
+        />
+        <div className="space-y-3">
+          <div>
+            <label className="mb-1 block text-2xs font-bold uppercase tracking-wider text-ink-3">
+              Model AI
+            </label>
+            <div className="relative">
+              <select
+                aria-label="Model AI"
+                value={selectedModel}
+                onChange={(e) => onUpdateSettings({ model: e.target.value })}
+                className={cn(
+                  'h-11 w-full appearance-none rounded-xl border border-line bg-nested pl-3.5 pr-10 text-body text-ink-1 outline-none transition-colors duration-150',
+                  'focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20',
+                )}
+              >
+                {options.map((id) => (
+                  <option key={id} value={id}>
+                    {modelIds.length === 0 && id === DEFAULT_MODEL ? `${id} (Default)` : id}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" aria-hidden="true" />
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-2xs font-bold uppercase tracking-wider text-ink-3">
+              API Key AI (Google AI Studio / OpenRouter)
+            </label>
+            <div className="relative">
+              <input
+                type={showKey ? 'text' : 'password'}
+                value={localApiKey}
+                onChange={(e) => setLocalApiKey(e.target.value)}
+                placeholder="AIzaSy... atau sk-or-v1-..."
+                className={cn(
+                  'h-11 w-full rounded-xl border border-line bg-nested pl-3.5 pr-11 font-mono text-xs text-ink-1 outline-none transition-colors duration-150',
+                  'focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20',
+                )}
+              />
+              <button
+                type="button"
+                onClick={() => setShowKey(!showKey)}
+                aria-label={showKey ? 'Sembunyikan kunci' : 'Lihat kunci'}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink-1"
+              >
+                {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+
+          <Button variant="primary" fullWidth size="md" onClick={handleSaveApiKey}>
+            Simpan Setelan AI
+          </Button>
         </div>
       </Card>
 

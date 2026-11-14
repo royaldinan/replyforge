@@ -81,7 +81,7 @@ export function useChatThreads(): ChatApi {
 
         const validRows = rows.filter((m) => {
           const b = m.buyer.toLowerCase().trim();
-          return b !== 'anda' && b !== 'you' && !b.includes('lina shop');
+          return b !== 'anda' && b !== 'you' && !b.includes('lina shop') && !b.includes('stickeria');
         });
 
         for (const m of validRows) {

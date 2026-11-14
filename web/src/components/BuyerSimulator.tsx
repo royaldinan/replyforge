@@ -165,10 +165,10 @@ export const BuyerSimulator: React.FC<Props> = ({ onSendMessage, isLoading }) =>
               aria-hidden="true"
               className="grid h-8 w-8 place-items-center rounded-full bg-emerald-500/12 text-2xs font-bold text-emerald-300 ring-1 ring-inset ring-emerald-400/25"
             >
-              LS
+              SK
             </span>
             <div className="min-w-0">
-              <p className="text-body font-semibold leading-4 text-ink-1">Lina Shop</p>
+              <p className="text-body font-semibold leading-4 text-ink-1">Stickeria</p>
               <p className="text-2xs text-ink-3">{channel === 'shopee' ? 'Shopee Chat' : 'WhatsApp Business'}</p>
             </div>
           </div>

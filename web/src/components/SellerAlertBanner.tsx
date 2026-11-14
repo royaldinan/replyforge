@@ -1,5 +1,5 @@
-import React from 'react';
-import { AlertTriangle, BellRing, Check, Hand, ShieldAlert } from 'lucide-react';
+import React, { useState } from 'react';
+import { AlertTriangle, BellRing, Check, ChevronDown, ChevronUp, Hand, ShieldAlert } from 'lucide-react';
 import { formatClock } from '../lib/format';
 import type { AnomalyAlert } from '../types';
 import { Badge, Button, ChannelBadge, cn, toChannel } from './ui';
@@ -17,6 +17,7 @@ export const SellerAlertBanner: React.FC<SellerAlertBannerProps> = ({
   onOpenChat,
   compact = false,
 }) => {
+  const [isExpanded, setIsExpanded] = useState(!compact);
   const openAlerts = alerts.filter((a) => a.status === 'open');
   if (openAlerts.length === 0) return null;
 
@@ -28,7 +29,7 @@ export const SellerAlertBanner: React.FC<SellerAlertBannerProps> = ({
         compact ? 'mx-4 mt-3 p-3' : 'mb-5',
       )}
     >
-      <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-red-600 text-white shadow-sm">
             <BellRing className="h-4 w-4 animate-bounce" aria-hidden="true" />
@@ -38,16 +39,29 @@ export const SellerAlertBanner: React.FC<SellerAlertBannerProps> = ({
               Perlu Tindakan Penjual ({openAlerts.length} Peringatan Prioritas)
             </h2>
             <p className="text-xs text-red-800">
-              AI mendeteksi pesanan jumlah tidak wajar, pertanyaan mencurigakan, atau alamat belum jelas. Auto-Reply dijeda otomatis.
+              AI mendeteksi anomali chat. Auto-Reply dijeda otomatis.
             </p>
           </div>
         </div>
-        <Badge tone="red" icon={ShieldAlert}>
-          Escalation Guard Aktif
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge tone="red" icon={ShieldAlert}>
+            Escalation Guard Aktif
+          </Badge>
+          {compact && (
+            <button
+              type="button"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="inline-flex h-8 items-center gap-1 rounded-lg bg-red-100 px-2 text-xs font-bold text-red-900 hover:bg-red-200"
+            >
+              {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              {isExpanded ? 'Ciutkan' : 'Buka'}
+            </button>
+          )}
+        </div>
       </div>
 
-      <ul className="space-y-2.5">
+      {isExpanded && (
+      <ul className="mt-2.5 space-y-2.5">
         {openAlerts.map((alert) => {
           const isUnusualQty = alert.kind === 'UNUSUAL_QUANTITY';
           const isWeird = alert.kind === 'WEIRD_QUERY';
@@ -96,6 +110,7 @@ export const SellerAlertBanner: React.FC<SellerAlertBannerProps> = ({
           );
         })}
       </ul>
+      )}
     </section>
   );
 };

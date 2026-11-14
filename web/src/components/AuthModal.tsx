@@ -24,8 +24,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, currentAccount, onCl
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Login form
-  const [identifier, setIdentifier] = useState('owner@linashop.id');
-  const [password, setPassword] = useState('linashop2026');
+  const [identifier, setIdentifier] = useState('owner@stickeria.id');
+  const [password, setPassword] = useState('stickeria2026');
 
   // Register form
   const [storeName, setStoreName] = useState('');
@@ -71,7 +71,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, currentAccount, onCl
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Gagal memuat akun demo');
       }
-      toast.success('Masuk ke Akun Demo Toko: Lina Shop');
+      toast.success('Masuk ke Akun Demo Toko: Stickeria');
       onAuthenticated(data.account, false);
       onClose();
     } catch (err: any) {
@@ -177,7 +177,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, currentAccount, onCl
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="owner@linashop.id atau 085183250750"
+                placeholder="owner@stickeria.id atau 085183250750"
                 className={cn(inputBase, 'h-11 rounded-xl px-3.5 text-body')}
               />
             </div>
@@ -204,7 +204,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, currentAccount, onCl
             </div>
 
             <Button type="button" variant="secondary" fullWidth icon={Sparkles} loading={loading} onClick={handleDemoLogin}>
-              Masuk Cepat Akun Demo (Lina Shop)
+              Masuk Cepat Akun Demo (Stickeria)
             </Button>
           </form>
         ) : (

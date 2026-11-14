@@ -75,17 +75,10 @@ describe('Mobile · header & chat', () => {
     expect(screen.queryByRole('button', { name: /Rina Wati/ })).toBeNull();
   });
 
-  it('toggle Auto-Pilot memanggil onUpdateSettings dengan mode yang benar (dua arah)', async () => {
-    const user = userEvent.setup();
-    const { props, rerender } = await renderMobile();
-    await user.click(screen.getByRole('switch', { name: 'Auto-Pilot' }));
-    expect(props.onUpdateSettings).toHaveBeenCalledWith({ mode: 'copilot' });
-    await act(async () => {
-      rerender(<MobileAppView {...props} settings={{ ...fx.settings, mode: 'copilot' }} />);
-    });
-    expect(screen.getByRole('switch', { name: 'Auto-Pilot' })).toHaveAttribute('aria-checked', 'false');
-    await user.click(screen.getByRole('switch', { name: 'Auto-Pilot' }));
-    expect(props.onUpdateSettings).toHaveBeenLastCalledWith({ mode: 'autopilot' });
+  it('header ringkas: nama toko + kontrak kanal, tanpa toggle mode', async () => {
+    await renderMobile();
+    expect(screen.getByText('WhatsApp Autopilot · Shopee Smart Copilot')).toBeInTheDocument();
+    expect(screen.queryByRole('switch')).toBeNull();
   });
 
   it('buka chat → takeover → kirim balasan → kembali (tombol Back Android = popstate)', async () => {
@@ -211,8 +204,12 @@ describe('Mobile · Stok & AI', () => {
     const fetchMock = stubFetch();
     const { props } = await renderMobile();
     await goto(user, /^Stok & AI/);
-    await user.click(screen.getByRole('button', { name: /Impor Katalog Template Shopee/ }));
-    await waitFor(() => expect(t.success).toHaveBeenCalledWith('Berhasil mengimpor 4 produk dari template Shopee!'));
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File([MOCK_CSV], 'katalog.csv', { type: 'text/csv' });
+    await user.upload(fileInput, file);
+    await waitFor(() =>
+      expect(t.success).toHaveBeenCalledWith('Berhasil mengimpor 4 produk dari template Shopee!'),
+    );
     const csvCall = fetchMock.mock.calls.find((c) => String(c[0]).includes('import-csv'))!;
     expect(csvCall[1].method).toBe('POST');
     expect(JSON.parse(csvCall[1].body)).toEqual({ csvData: MOCK_CSV });
@@ -284,23 +281,22 @@ describe('Mobile · Sistem', () => {
     expect(screen.getByRole('option', { name: 'ag/gemini-3.8-flash-low (Default)' })).toBeInTheDocument();
   });
 
-  it('metrik, log privasi (3 + lihat semua) dan nilai cadangan bila metrik kosong', async () => {
+  it('menampilkan koneksi kanal penjualan dan log privasi (3 + lihat semua)', async () => {
     const user = userEvent.setup();
     await renderMobile();
     await goto(user, /^Sistem/);
-    expect(screen.getAllByText('72.5%').length).toBeGreaterThan(0);
-    expect(screen.getByText('18.450')).toBeInTheDocument();
+    expect(screen.getByText('Koneksi kanal penjualan')).toBeInTheDocument();
+    expect(screen.queryByText('Efisiensi Green IT')).toBeNull();
     expect(screen.queryByText('OTP_SHOPEE')).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Lihat semua (4)' }));
     expect(screen.getByText('OTP_SHOPEE')).toBeInTheDocument();
   });
 
-  it('metrik kosong memakai nilai cadangan lama (68.4% / 14.2) dan tanpa log privasi', async () => {
+  it('tanpa log privasi menampilkan pesan nol kebocoran data', async () => {
     const user = userEvent.setup();
     await renderMobile({ metrics: {}, privacyLogs: [] });
     await goto(user, /^Sistem/);
-    expect(screen.getAllByText('68.4%').length).toBeGreaterThan(0);
-    expect(screen.getByText('14.2')).toBeInTheDocument();
+    expect(screen.getByText('Koneksi kanal penjualan')).toBeInTheDocument();
     expect(screen.getByText('Nol kebocoran data. Kode OTP diblokir 100% lokal di HP.')).toBeInTheDocument();
   });
 });

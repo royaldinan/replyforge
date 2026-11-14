@@ -24,11 +24,11 @@ const sampleAccount: StoreAccount = {
   email: 'owner@linashop.id',
   phone: '085183250750',
   ownerName: 'Lina Permata',
-  storeName: 'Lina Shop',
+  storeName: 'Stickeria',
   category: 'Aksesoris & Merchandise Kreatif',
   shopeeHandle: '@linashop.id',
   whatsappNumber: '0851-8325-0750',
-  bankAccount: 'BCA 5271 8890 21 a.n. Lina Shop',
+  bankAccount: 'SeaBank 901483182051 a.n. Stickeria',
   shopeeConnected: true,
   whatsappConnected: true,
   osNotificationGranted: true,
@@ -117,7 +117,7 @@ describe('AuthModal (Login, Registrasi Toko Baru, & Akun Demo Juri)', () => {
     const onClose = vi.fn();
 
     render(<AuthModal open currentAccount={null} onClose={onClose} onAuthenticated={onAuth} />);
-    await user.click(screen.getByRole('button', { name: /Masuk Cepat Akun Demo \(Lina Shop\)/ }));
+    await user.click(screen.getByRole('button', { name: /Masuk Cepat Akun Demo/ }));
 
     await waitFor(() => expect(onAuth).toHaveBeenCalledWith(sampleAccount, false));
     expect(onClose).toHaveBeenCalled();

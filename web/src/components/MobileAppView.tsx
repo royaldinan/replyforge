@@ -81,23 +81,25 @@ export const MobileAppView: React.FC<Props> = ({
   const openThread = activeTab === 'chat' ? chat.activeThread : null;
 
   return (
-    <div className="relative mx-auto flex h-app w-full max-w-[480px] flex-col overflow-hidden bg-app font-sans text-ink-1 sm:border-x sm:border-line">
+    <div className="relative mx-auto flex h-[100dvh] w-full max-w-[480px] flex-col overflow-hidden bg-app font-sans text-ink-1 lg:h-[812px] lg:max-h-[812px]">
       {openThread ? (
         <ThreadView
           key={openThread.id}
           thread={openThread}
+          orders={orders}
           takeover={chat.isTakeover(openThread.id)}
           isAutoPilot={isAutoPilot}
           onBack={chat.close}
           onSend={(text) => chat.sendAdminMessage(openThread.id, text)}
           onSetTakeover={(next) => chat.setTakeover(openThread.id, next)}
+          onUpdateOrderStatus={onUpdateOrderStatus}
         />
       ) : (
         <>
           <AppHeader
             isAutoPilot={isAutoPilot}
             onToggleMode={toggleMode}
-            storeName={settings.storeName || 'Lina Shop'}
+            storeName={settings.storeName || 'Stickeria'}
             onOpenConnectWizard={onOpenConnectWizard}
             onOpenTutorial={onOpenTutorial}
           />

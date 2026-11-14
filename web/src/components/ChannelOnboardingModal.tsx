@@ -30,9 +30,9 @@ export const ChannelOnboardingModal: React.FC<ChannelOnboardingModalProps> = ({
   onSendTestWebhook,
 }) => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [storeName, setStoreName] = useState(account?.storeName || 'Lina Shop');
-  const [bankAccount, setBankAccount] = useState(account?.bankAccount || 'BCA 5271 8890 21 a.n. Lina Shop');
-  const [shopeeHandle, setShopeeHandle] = useState(account?.shopeeHandle || '@linashop.id');
+  const [storeName, setStoreName] = useState(account?.storeName || 'Stickeria');
+  const [bankAccount, setBankAccount] = useState(account?.bankAccount || 'SeaBank 901483182051 a.n. Ferdinand Manurung');
+  const [shopeeHandle, setShopeeHandle] = useState(account?.shopeeHandle || '@royaldinan');
   const [whatsappNumber, setWhatsappNumber] = useState(account?.whatsappNumber || '0851-8325-0750');
   const [shopeeConnected, setShopeeConnected] = useState(account?.shopeeConnected ?? true);
   const [whatsappConnected, setWhatsappConnected] = useState(account?.whatsappConnected ?? true);
@@ -43,9 +43,9 @@ export const ChannelOnboardingModal: React.FC<ChannelOnboardingModalProps> = ({
 
   useEffect(() => {
     if (account) {
-      setStoreName(account.storeName || 'Lina Shop');
-      setBankAccount(account.bankAccount || 'BCA 5271 8890 21 a.n. Lina Shop');
-      setShopeeHandle(account.shopeeHandle || '@linashop.id');
+      setStoreName(account.storeName || 'Stickeria');
+      setBankAccount(account.bankAccount || 'SeaBank 901483182051 a.n. Ferdinand Manurung');
+      setShopeeHandle(account.shopeeHandle || '@royaldinan');
       setWhatsappNumber(account.whatsappNumber || '0851-8325-0750');
       setShopeeConnected(account.shopeeConnected ?? true);
       setWhatsappConnected(account.whatsappConnected ?? true);
@@ -223,7 +223,7 @@ export const ChannelOnboardingModal: React.FC<ChannelOnboardingModalProps> = ({
                   type="text"
                   value={shopeeHandle}
                   onChange={(e) => setShopeeHandle(e.target.value)}
-                  placeholder="@linashop.id"
+                  placeholder="@royaldinan"
                   className={cn(inputBase, 'h-11 rounded-xl px-3.5 text-body')}
                 />
               </div>
@@ -238,7 +238,7 @@ export const ChannelOnboardingModal: React.FC<ChannelOnboardingModalProps> = ({
                 type="text"
                 value={bankAccount}
                 onChange={(e) => setBankAccount(e.target.value)}
-                placeholder="BCA 5271 8890 21 a.n. Lina Shop"
+                placeholder="SeaBank 901483182051 a.n. Ferdinand Manurung"
                 className={cn(inputBase, 'h-11 rounded-xl px-3.5 text-body')}
               />
             </div>
@@ -290,7 +290,7 @@ export const ChannelOnboardingModal: React.FC<ChannelOnboardingModalProps> = ({
                     <ShoppingBag className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-ink-1">Shopee Seller ({shopeeHandle || '@linashop.id'})</p>
+                    <p className="text-sm font-semibold text-ink-1">Shopee Seller ({shopeeHandle || '@royaldinan'})</p>
                     <p className="text-xs text-ink-3">Package: com.shopee.id &amp; com.shopee.shopeeseller</p>
                   </div>
                 </div>

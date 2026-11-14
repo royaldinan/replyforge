@@ -23,6 +23,15 @@ const LOW_STOCK_AT = 5;
 
 const Composer = ({ composer }: { composer: StockComposer }) => {
   const canSubmit = composer.inputText.trim().length > 0;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      composer.importCsv(file);
+      e.target.value = '';
+    }
+  };
   return (
     <Card>
       <CardHeader
@@ -78,8 +87,22 @@ const Composer = ({ composer }: { composer: StockComposer }) => {
       </div>
 
       <div className="mt-3">
-        <Button fullWidth icon={Upload} loading={composer.isImportingCsv} onClick={composer.importCsv}>
-          Impor Katalog Template Shopee (CSV)
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".csv,.txt,.xlsx"
+          className="hidden"
+          onChange={handleFileSelected}
+        />
+        <Button
+          fullWidth
+          icon={Upload}
+          loading={composer.isImportingCsv}
+          onClick={() => {
+            fileInputRef.current?.click();
+          }}
+        >
+          Pilih File CSV / Excel Katalog Shopee
         </Button>
       </div>
       <Button
@@ -207,7 +230,9 @@ const PresetRow = ({ preset, active, onUse }: { preset: Preset; active: boolean;
 
 /* ------------------------------- Tab ------------------------------------ */
 
-export const StockTab = ({ products, rules, composer, onAdjustStock, onAddRule, onRefresh }: StockTabProps) => {
+export const StockTab = ({ products = [], rules = [], composer, onAdjustStock, onAddRule, onRefresh }: StockTabProps) => {
+  const safeProducts = Array.isArray(products) ? products : [];
+  const safeRules = Array.isArray(rules) ? rules : [];
   const [filter, setFilter] = useState<'all' | 'low'>('all');
   const [refreshing, setRefreshing] = useState(false);
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -219,9 +244,9 @@ export const StockTab = ({ products, rules, composer, onAdjustStock, onAddRule, 
     [],
   );
 
-  const lowCount = products.filter((p) => p.stock <= LOW_STOCK_AT).length;
-  const activeRules = rules.filter((r) => r.enabled !== false).length;
-  const visible = filter === 'low' ? products.filter((p) => p.stock <= LOW_STOCK_AT) : products;
+  const lowCount = safeProducts.filter((p) => p.stock <= LOW_STOCK_AT).length;
+  const activeRules = safeRules.filter((r) => r.enabled !== false).length;
+  const visible = filter === 'low' ? safeProducts.filter((p) => p.stock <= LOW_STOCK_AT) : safeProducts;
 
   const handleRefresh = () => {
     onRefresh();
@@ -238,7 +263,7 @@ export const StockTab = ({ products, rules, composer, onAdjustStock, onAddRule, 
     <div className="space-y-5 px-4 pb-6 pt-4">
       <OverviewStrip
         items={[
-          { label: 'Produk', value: products.length },
+          { label: 'Produk', value: safeProducts.length },
           { label: 'Hampir habis', value: lowCount, tone: lowCount > 0 ? 'amber' : 'neutral' },
           { label: 'Aturan aktif', value: activeRules, tone: 'emerald' },
         ]}
@@ -249,7 +274,7 @@ export const StockTab = ({ products, rules, composer, onAdjustStock, onAddRule, 
       <section aria-labelledby="rf-stock-heading" className="space-y-3">
         <div className="flex items-center justify-between gap-2 px-1">
           <h2 id="rf-stock-heading" className="text-sm font-semibold text-ink-1">
-            Inventori Lina Shop
+            Inventori Stickeria
           </h2>
           <IconButton
             icon={RefreshCw}
@@ -265,13 +290,13 @@ export const StockTab = ({ products, rules, composer, onAdjustStock, onAddRule, 
           ariaLabel="Filter produk"
           size="sm"
           options={[
-            { value: 'all', label: `Semua (${products.length})` },
+            { value: 'all', label: `Semua (${safeProducts.length})` },
             { value: 'low', label: `Hampir habis (${lowCount})` },
           ]}
         />
         {visible.length === 0 ? (
           <p className="rounded-2xl border border-line bg-surface px-4 py-8 text-center text-xs text-ink-3">
-            {products.length === 0
+            {safeProducts.length === 0
               ? 'Belum ada produk. Tambahkan lewat perintah cepat di atas.'
               : 'Semua stok aman, tidak ada yang hampir habis.'}
           </p>
@@ -293,7 +318,7 @@ export const StockTab = ({ products, rules, composer, onAdjustStock, onAddRule, 
         </div>
         <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
           {PRESETS.map((pr) => (
-            <PresetRow key={pr.id} preset={pr} active={rules.some((r) => r.name === pr.label)} onUse={usePreset} />
+            <PresetRow key={pr.id} preset={pr} active={safeRules.some((r) => r.name === pr.label)} onUse={usePreset} />
           ))}
         </ul>
       </section>

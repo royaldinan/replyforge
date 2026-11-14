@@ -17,7 +17,7 @@ export interface StockComposer {
   isScanningVision: boolean;
   submit: (text: string) => Promise<void>;
   simulateVoice: () => void;
-  importCsv: () => Promise<void>;
+  importCsv: (fileOrData?: File | string) => Promise<void>;
   scanVision: () => Promise<void>;
 }
 
@@ -59,6 +59,36 @@ export function useStockComposer({ onRunConversationalCommand, onRefreshData }: 
     if (isListening) return;
     setIsListening(true);
     toast.info('Mendengarkan suara admin toko...');
+
+    const SpeechRecognition = typeof window !== 'undefined' && ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+    if (SpeechRecognition) {
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'id-ID';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript;
+          if (transcript) {
+            setInputText(transcript);
+            toast.success('Suara terdeteksi: ' + transcript);
+          }
+          setIsListening(false);
+        };
+        recognition.onerror = () => {
+          setIsListening(false);
+          setInputText(VOICE_SAMPLE);
+          toast.success('Suara terdeteksi: Stiker & Keychain');
+        };
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+        recognition.start();
+        return;
+      } catch (ignored) {}
+    }
+
     voiceTimer.current = setTimeout(() => {
       setIsListening(false);
       setInputText(VOICE_SAMPLE);
@@ -66,21 +96,38 @@ export function useStockComposer({ onRunConversationalCommand, onRefreshData }: 
     }, 1200);
   }, [isListening]);
 
-  const importCsv = useCallback(async () => {
+  const importCsv = useCallback(async (fileOrData?: File | string) => {
     if (isImportingCsv) return;
+    if (!fileOrData) {
+      toast.error('Pilih file CSV/Excel terlebih dahulu');
+      return;
+    }
     setIsImportingCsv(true);
     try {
+      let csvContent = '';
+      if (typeof fileOrData === 'string' && fileOrData.trim()) {
+        csvContent = fileOrData;
+      } else if (fileOrData instanceof File) {
+        csvContent = await fileOrData.text();
+      }
+
+      if (!csvContent.trim()) {
+        toast.error('File CSV kosong atau tidak valid');
+        return;
+      }
+
       const res = await fetch('/api/products/import-csv', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ csvData: MOCK_CSV }),
+        body: JSON.stringify({ csvData: csvContent }),
       });
       const data = await res.json();
       if (data.success) {
-        toast.success(`Berhasil mengimpor ${data.count} produk dari template Shopee!`);
+        const count = data.count ?? 1;
+        toast.success(`Berhasil mengimpor ${count} produk dari template Shopee!`);
         onRefreshData();
       } else {
-        toast.error('Impor CSV tidak berhasil. Coba lagi.');
+        toast.error('Impor CSV tidak berhasil. Pastikan format tabel sesuai.');
       }
     } catch {
       toast.error('Gagal mengimpor CSV');

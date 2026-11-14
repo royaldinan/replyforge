@@ -30,8 +30,8 @@ const ModeBanner = ({ isAutoPilot }: { isAutoPilot: boolean }) => (
       <span className={cn('h-2 w-2 rounded-full', isAutoPilot ? 'bg-amber-500' : 'bg-ink-3')} />
     </span>
     <p className="min-w-0 flex-1 leading-snug text-ink-2">
-      <strong className="font-semibold text-ink-1">{isAutoPilot ? 'Auto-Pilot aktif' : '1-Tap Copilot'}</strong>:{' '}
-      {isAutoPilot ? 'AI balas otomatis & jaga HPP.' : 'Tinjau draf balasan sebelum kirim.'}
+      <strong className="font-semibold text-ink-1">{isAutoPilot ? 'WhatsApp Autopilot' : '1-Tap Copilot'}</strong>:{' '}
+      {isAutoPilot ? 'WA dibalas otomatis; Shopee hanya draf untuk Anda kirim.' : 'Tinjau draf balasan sebelum kirim.'}
     </p>
   </div>
 );

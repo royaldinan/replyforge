@@ -65,7 +65,7 @@ export const MiroFishSimulator: React.FC<Props> = ({ onSendMessage, isLoading, o
   const [chatLog, setChatLog] = useState<LogEntry[]>([
     {
       sender: 'system',
-      text: 'MiroFish Simulator Siap: Ekosistem Lina Shop (Shopee & WA Business) terhubung.',
+      text: 'MiroFish Simulator Siap: Ekosistem Stickeria (Shopee & WA Business) terhubung.',
       time: 'Ready',
       badge: 'SYSTEM',
     },
@@ -111,7 +111,7 @@ export const MiroFishSimulator: React.FC<Props> = ({ onSendMessage, isLoading, o
         toast.success(`Shopee Payment #${res.orderId}: @rina_wati88 LUNAS (-2 pack Stiker Kucing)!`);
         setRinaStep(3);
       } else if (res.reply) {
-        addLog('agent', res.reply, 'Lina Shop AI Agent');
+        addLog('agent', res.reply, 'Stickeria AI Agent');
         setRinaStep(stepIndex + 1);
       }
 
@@ -259,7 +259,7 @@ export const MiroFishSimulator: React.FC<Props> = ({ onSendMessage, isLoading, o
       if (res.isPaymentNotification) {
         addLog('system', `Notifikasi Pembayaran #${res.orderId} Diproses`, 'SYSTEM');
       } else if (res.reply) {
-        addLog('agent', res.reply, 'Lina Shop AI Agent');
+        addLog('agent', res.reply, 'Stickeria AI Agent');
       }
       onRefreshData();
     } catch (e) {
@@ -424,7 +424,7 @@ export const MiroFishSimulator: React.FC<Props> = ({ onSendMessage, isLoading, o
                   <span className="flex items-center gap-1.5 font-semibold text-ink-2">
                     {msg.icon === 'ok' && <CheckCircle2 className="h-3 w-3 text-emerald-400" aria-hidden="true" />}
                     {msg.icon === 'shield' && <ShieldCheck className="h-3 w-3 text-emerald-400" aria-hidden="true" />}
-                    {msg.badge || (msg.sender === 'buyer' ? 'Pembeli' : 'Lina Shop AI')}
+                    {msg.badge || (msg.sender === 'buyer' ? 'Pembeli' : 'Stickeria AI')}
                   </span>
                   <span className="font-mono tabular-nums">{msg.time}</span>
                 </div>
