@@ -5,7 +5,6 @@ import { formatRupiah } from '../../lib/format';
 import type { Product, Rule } from '../../types';
 import { Badge, Button, Card, CardHeader, IconButton, ProgressBar, Segmented, cn, inputBase } from '../ui';
 import { COMMAND_EXAMPLES, PRESETS, type Preset } from './data';
-import { OverviewStrip } from './OverviewStrip';
 import type { StockComposer } from './useStockComposer';
 
 interface StockTabProps {
@@ -38,8 +37,8 @@ const Composer = ({ composer }: { composer: StockComposer }) => {
         level={2}
         icon={Sparkles}
         tone="emerald"
-        title="Perintah cepat"
-        description="Ketik atau ucapkan, AI yang mengisi stok dan aturan balasan."
+        title="Perintah stok cepat"
+        description="Ketik perintah biasa; AI mengisi stok dan aturan balasan."
       />
 
       <div className="relative">
@@ -261,14 +260,6 @@ export const StockTab = ({ products = [], rules = [], composer, onAdjustStock, o
 
   return (
     <div className="space-y-5 px-4 pb-6 pt-4">
-      <OverviewStrip
-        items={[
-          { label: 'Produk', value: safeProducts.length },
-          { label: 'Hampir habis', value: lowCount, tone: lowCount > 0 ? 'amber' : 'neutral' },
-          { label: 'Aturan aktif', value: activeRules, tone: 'emerald' },
-        ]}
-      />
-
       <Composer composer={composer} />
 
       <section aria-labelledby="rf-stock-heading" className="space-y-3">
