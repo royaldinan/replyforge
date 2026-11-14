@@ -21,7 +21,7 @@ public class ReplyForgeDb extends SQLiteOpenHelper {
 
     private static final String TAG = "ReplyForgeDb";
     private static final String DATABASE_NAME = "replyforge_standalone.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
 
     private static ReplyForgeDb instance;
 
@@ -56,6 +56,7 @@ public class ReplyForgeDb extends SQLiteOpenHelper {
                 "code TEXT UNIQUE NOT NULL, " +
                 "buyer TEXT NOT NULL, " +
                 "channel TEXT NOT NULL DEFAULT 'whatsapp', " +
+                "thread_id TEXT NOT NULL DEFAULT '', " +
                 "items TEXT NOT NULL DEFAULT '[]', " +
                 "total INTEGER NOT NULL, " +
                 "status TEXT NOT NULL DEFAULT 'reserved', " +
@@ -115,45 +116,51 @@ public class ReplyForgeDb extends SQLiteOpenHelper {
                 "status TEXT NOT NULL DEFAULT 'open', " +
                 "created_at INTEGER NOT NULL)");
 
+        db.execSQL("CREATE TABLE IF NOT EXISTS rules (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "name TEXT NOT NULL, " +
+                "triggers TEXT NOT NULL, " +
+                "response TEXT NOT NULL, " +
+                "enabled INTEGER NOT NULL DEFAULT 1, " +
+                "source TEXT NOT NULL DEFAULT 'seed', " +
+                "created_at INTEGER NOT NULL)");
+
         seedDefaults(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Upgrade migration if needed
+        if (oldVersion < 2) {
+            db.execSQL("DELETE FROM products WHERE sku != 'STK-CAT-01'");
+            db.execSQL("UPDATE settings SET value = 'Stickeria' WHERE key = 'storeName'");
+            db.execSQL("UPDATE settings SET value = 'SeaBank 901483182051 a.n. Ferdinand Manurung' WHERE key = 'bankAccount'");
+        }
+        if (oldVersion < 3) {
+            try {
+                db.execSQL("ALTER TABLE orders ADD COLUMN thread_id TEXT NOT NULL DEFAULT ''");
+            } catch (Exception ignored) {}
+        }
     }
 
     private void seedDefaults(SQLiteDatabase db) {
         long now = System.currentTimeMillis();
 
-        // 1. Seed 4 Official Lina Shop Products
-        insertProduct(db, "STK-CAT-01", "Paket Stiker Kucing Gemoy Vinyl Waterproof",
-                "[\"paket stiker kucing gemoy\",\"stiker kucing gemoy\",\"stiker kucing\",\"sticker kucing\",\"stiker vinyl\",\"stiker gemoy\",\"stiker\",\"sticker\",\"sticker cat\"]",
+        // 1. Seed Official Stickeria 1 Single Product
+        insertProduct(db, "STK-CAT-01", "Paket Stiker Kucing Gemoy Vinyl Waterproof Lucu Anti Air Die Cut Isi 20 Pcs",
+                "[\"paket stiker kucing gemoy\",\"stiker kucing gemoy\",\"stiker kucing\",\"sticker kucing\",\"stiker vinyl\",\"stiker gemoy\",\"stiker\",\"sticker\",\"sticker cat\",\"kucing\"]",
                 "pack", 15000, 6000, 50, 100, 15, now);
 
-        insertProduct(db, "KC-ACRYL-02", "Gantungan Kunci Akrilik Capybara 2 Sisi",
-                "[\"gantungan kunci akrilik capybara\",\"gantungan kunci capybara\",\"keychain capybara\",\"gantungan kunci\",\"keychain\",\"capybara\"]",
-                "pcs", 25000, 12000, 30, 60, 10, now);
-
-        insertProduct(db, "GPT-FLW-03", "Griptok HP Akrilik Bunga Daisy",
-                "[\"griptok hp akrilik bunga daisy\",\"griptok daisy\",\"griptok bunga\",\"griptok hp\",\"griptok\",\"popsocket daisy\"]",
-                "pcs", 20000, 8000, 25, 50, 10, now);
-
-        insertProduct(db, "PC-HLD-04", "Photocard Holder Plushie Kelinci Lucu",
-                "[\"photocard holder plushie kelinci\",\"photocard holder kelinci\",\"pc holder kelinci\",\"pc holder plushie\",\"photocard holder\",\"pc holder\"]",
-                "pcs", 35000, 18000, 15, 30, 8, now);
-
-        // 2. Seed Store Account (Lina Shop)
+        // 2. Seed Store Account (Stickeria)
         ContentValues acc = new ContentValues();
-        acc.put("email", "owner@linashop.id");
+        acc.put("email", "ferdinandmanurung899@gmail.com");
         acc.put("phone", "085183250750");
         acc.put("owner_name", "Lina Permata");
-        acc.put("store_name", "Lina Shop");
-        acc.put("category", "Aksesoris & Merchandise Kreatif");
-        acc.put("shopee_handle", "@linashop.id");
+        acc.put("store_name", "Stickeria");
+        acc.put("category", "Stiker & Aksesoris Kreatif");
+        acc.put("shopee_handle", "@royaldinan");
         acc.put("whatsapp_number", "0851-8325-0750");
-        acc.put("bank_account", "BCA 5271 8890 21 a.n. Lina Shop");
-        acc.put("shopee_connected", 0);
+        acc.put("bank_account", "SeaBank 901483182051 a.n. Ferdinand Manurung");
+        acc.put("shopee_connected", 1);
         acc.put("whatsapp_connected", 1);
         acc.put("os_notification_granted", 1);
         acc.put("onboarding_completed", 1);
@@ -161,15 +168,36 @@ public class ReplyForgeDb extends SQLiteOpenHelper {
         db.insert("store_accounts", null, acc);
 
         // 3. Seed Settings
-        setSettingInternal(db, "storeName", "Lina Shop");
+        setSettingInternal(db, "storeName", "Stickeria");
         setSettingInternal(db, "ownerName", "Lina Permata");
         setSettingInternal(db, "cutoff", "16.00");
-        setSettingInternal(db, "bankAccount", "BCA 5271 8890 21 a.n. Lina Shop");
+        setSettingInternal(db, "bankAccount", "SeaBank 901483182051 a.n. Ferdinand Manurung");
         setSettingInternal(db, "tone", "santai");
         setSettingInternal(db, "mode", "autopilot");
-        setSettingInternal(db, "model", "gemini-1.5-flash");
+        setSettingInternal(db, "model", "gemini-3.8-flash");
         setSettingInternal(db, "baseUrl", "https://generativelanguage.googleapis.com/v1beta/openai");
+        // Kredensial cloud TIDAK di-hardcode (Guidebook: wajib environment variable / input pengguna).
+        // Kosong = mesin AI lokal on-device yang dipakai (100% offline, tanpa kuota).
         setSettingInternal(db, "apiKey", "");
+
+        // 4. Seed Rules
+        insertRuleInternal(db, "Jadwal Kirim & Cutoff Hari Ini", "[\"kirim\",\"pengiriman\",\"dikirim\",\"ongkir\",\"kurir\",\"jam cutoff\",\"hari ini\",\"kapan dikirim\",\"jam berapa kirim\",\"nyampe\",\"sampe\"]",
+                "Siap kak! Kalau pesanan masuk sebelum jam 16.00 sore ini, langsung kita ikutkan pengiriman hari ini juga ya 🚚 (JNE, J&T, SiCepat, Shopee Xpress)", 1, "seed", now);
+        insertRuleInternal(db, "Nego Harga & Grosir (HPP Guard)", "[\"nego\",\"kurang\",\"diskon\",\"potongan\",\"murah\",\"harga pas\",\"kurangin\",\"tawar\",\"boleh kurang\"]",
+                "Wah maaf banget kak, untuk stiker kucing udah harga pas terbaik di Rp15.000 ya kak 🙏 Ambil minimal 3 pack baru bisa dapat potongan grosir kak!", 1, "seed", now);
+        insertRuleInternal(db, "Info Pembayaran & Rekening", "[\"bayar\",\"transfer\",\"rekening\",\"cod\",\"qris\",\"pembayaran\"]",
+                "Untuk pembayaran Shopee bisa langsung lewat aplikasi kak (ShopeePay, SPayLater, COD). Untuk WhatsApp bisa transfer SeaBank 901483182051 a.n. Ferdinand Manurung ya kak ✅", 1, "seed", now);
+    }
+
+    private void insertRuleInternal(SQLiteDatabase db, String name, String triggers, String response, int enabled, String source, long now) {
+        ContentValues cv = new ContentValues();
+        cv.put("name", name);
+        cv.put("triggers", triggers);
+        cv.put("response", response);
+        cv.put("enabled", enabled);
+        cv.put("source", source);
+        cv.put("created_at", now);
+        db.insert("rules", null, cv);
     }
 
     private void insertProduct(SQLiteDatabase db, String sku, String name, String aliases, String unit, int price, int hpp, int stock, int cap, int maxOrder, long now) {
@@ -263,10 +291,148 @@ public class ReplyForgeDb extends SQLiteOpenHelper {
         return null;
     }
 
+    public synchronized int importProductsFromCsv(String csvData) {
+        if (csvData == null || csvData.trim().isEmpty()) return 0;
+        SQLiteDatabase db = getWritableDatabase();
+        String[] lines = csvData.trim().split("\r?\n");
+        if (lines.length < 2) return 0;
+
+        java.util.List<String> headers = parseCsvLine(lines[0]);
+        int idxSku = -1, idxName = -1, idxPrice = -1, idxHpp = -1, idxStock = -1, idxUnit = -1;
+
+        for (int i = 0; i < headers.size(); i++) {
+            String h = headers.get(i).toLowerCase(java.util.Locale.ROOT).trim();
+            if (h.contains("sku") || h.contains("kode")) idxSku = i;
+            else if (h.contains("nama") || h.contains("name") || h.contains("produk") || h.contains("barang")) idxName = i;
+            else if (h.contains("harga") || h.contains("price") || h.contains("jual")) idxPrice = i;
+            else if (h.contains("hpp") || h.contains("modal")) idxHpp = i;
+            else if (h.contains("stok") || h.contains("stock") || h.contains("qty")) idxStock = i;
+            else if (h.contains("unit") || h.contains("satuan")) idxUnit = i;
+        }
+
+        // Positional defaults if headers weren't named standardly
+        if (idxName == -1 && headers.size() > 1) idxName = 1;
+        if (idxPrice == -1 && headers.size() > 2) idxPrice = 2;
+        if (idxHpp == -1 && headers.size() > 3) idxHpp = 3;
+        if (idxStock == -1 && headers.size() > 4) idxStock = 4;
+        if (idxUnit == -1 && headers.size() > 5) idxUnit = 5;
+
+        long now = System.currentTimeMillis();
+        int importedCount = 0;
+
+        for (int i = 1; i < lines.length; i++) {
+            String line = lines[i].trim();
+            if (line.isEmpty()) continue;
+            java.util.List<String> cols = parseCsvLine(line);
+            if (cols.isEmpty()) continue;
+
+            String name = (idxName >= 0 && idxName < cols.size()) ? cols.get(idxName).trim() : "";
+            if (name.isEmpty()) continue;
+
+            String sku = (idxSku >= 0 && idxSku < cols.size()) ? cols.get(idxSku).trim() : "";
+            if (sku.isEmpty()) {
+                sku = "PRD-" + (1000 + i);
+            }
+
+            int price = 0;
+            if (idxPrice >= 0 && idxPrice < cols.size()) {
+                price = parseNumeric(cols.get(idxPrice));
+            }
+            int hpp = 0;
+            if (idxHpp >= 0 && idxHpp < cols.size()) {
+                hpp = parseNumeric(cols.get(idxHpp));
+            }
+            if (hpp == 0 && price > 0) {
+                hpp = (int) Math.round(price * 0.7);
+            }
+            int stock = 0;
+            if (idxStock >= 0 && idxStock < cols.size()) {
+                stock = parseNumeric(cols.get(idxStock));
+            }
+            String unit = (idxUnit >= 0 && idxUnit < cols.size()) ? cols.get(idxUnit).trim().toLowerCase(java.util.Locale.ROOT) : "pcs";
+            if (unit.isEmpty()) unit = "pcs";
+
+            JSONArray aliases = new JSONArray();
+            aliases.put(name.toLowerCase(java.util.Locale.ROOT));
+            String[] nameParts = name.split("\\s+");
+            if (nameParts.length > 0 && !nameParts[0].isEmpty()) {
+                aliases.put(nameParts[0].toLowerCase(java.util.Locale.ROOT));
+            }
+            if (nameParts.length > 1) {
+                aliases.put((nameParts[0] + " " + nameParts[1]).toLowerCase(java.util.Locale.ROOT));
+            }
+
+            int cap = Math.max(stock * 2, 50);
+            insertProduct(db, sku, name, aliases.toString(), unit, price, hpp, stock, cap, 15, now);
+            importedCount++;
+        }
+        return importedCount;
+    }
+
+    private static java.util.List<String> parseCsvLine(String line) {
+        java.util.List<String> result = new java.util.ArrayList<>();
+        if (line == null) return result;
+        StringBuilder cur = new StringBuilder();
+        boolean inQuotes = false;
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (c == '"') {
+                if (inQuotes && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                    cur.append('"');
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (c == ',' && !inQuotes) {
+                result.add(cur.toString().trim().replaceAll("^\"|\"$", ""));
+                cur.setLength(0);
+            } else {
+                cur.append(c);
+            }
+        }
+        result.add(cur.toString().trim().replaceAll("^\"|\"$", ""));
+        return result;
+    }
+
+    private static int parseNumeric(String s) {
+        if (s == null) return 0;
+        String clean = s.replaceAll("[^0-9]", "");
+        if (clean.isEmpty()) return 0;
+        try {
+            return Integer.parseInt(clean);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public synchronized JSONObject insertOrder(String buyer, String channel, String sku, int qty, int price, String status, String note) {
+        return insertOrder(buyer, channel, sku, qty, price, status, note, null);
+    }
+
+    public synchronized JSONObject insertOrder(String buyer, String channel, String sku, int qty, int price, String status, String note, String threadId) {
+        SQLiteDatabase db = getWritableDatabase();
+        long now = System.currentTimeMillis();
+        String code = "RF-" + new java.text.SimpleDateFormat("yyMMdd", java.util.Locale.ROOT).format(new java.util.Date(now)) + "-" + String.format(java.util.Locale.ROOT, "%04d", (int)(Math.random()*9000)+1000);
+        ContentValues cv = new ContentValues();
+        cv.put("code", code);
+        cv.put("buyer", buyer);
+        cv.put("channel", channel);
+        cv.put("thread_id", threadId != null ? threadId : "");
+        cv.put("items", "[{\"sku\":\"" + sku + "\",\"quantity\":" + qty + ",\"price\":" + price + "}]");
+        cv.put("total", qty * price);
+        cv.put("status", status); // 'reserved', 'paid', 'cancelled'
+        cv.put("source", "chat");
+        cv.put("address_note", note != null ? note : "");
+        cv.put("created_at", now);
+        long id = db.insert("orders", null, cv);
+        adjustStock(sku, -qty); // Potong stok otomatis
+        return getOrderById((int) id);
+    }
+
     public synchronized JSONArray listOrders() {
         JSONArray arr = new JSONArray();
         SQLiteDatabase db = getReadableDatabase();
-        try (Cursor c = db.rawQuery("SELECT id, code, buyer, channel, items, total, status, source, missing_fields, address_note, created_at FROM orders ORDER BY id DESC", null)) {
+        try (Cursor c = db.rawQuery("SELECT id, code, buyer, channel, items, total, status, source, missing_fields, address_note, created_at, thread_id FROM orders ORDER BY id DESC", null)) {
             while (c.moveToNext()) {
                 JSONObject o = new JSONObject();
                 o.put("id", c.getInt(0));
@@ -280,6 +446,7 @@ public class ReplyForgeDb extends SQLiteOpenHelper {
                 o.put("missing_fields", new JSONArray(c.getString(8)));
                 o.put("address_note", c.getString(9));
                 o.put("created_at", c.getLong(10));
+                o.put("thread_id", c.getString(11));
                 arr.put(o);
             }
         } catch (Exception e) {
@@ -316,7 +483,7 @@ public class ReplyForgeDb extends SQLiteOpenHelper {
 
     public synchronized JSONObject getOrderById(int id) {
         SQLiteDatabase db = getReadableDatabase();
-        try (Cursor c = db.rawQuery("SELECT id, code, buyer, channel, items, total, status, source, missing_fields, address_note, created_at FROM orders WHERE id = ?", new String[]{String.valueOf(id)})) {
+        try (Cursor c = db.rawQuery("SELECT id, code, buyer, channel, items, total, status, source, missing_fields, address_note, created_at, thread_id FROM orders WHERE id = ?", new String[]{String.valueOf(id)})) {
             if (c.moveToNext()) {
                 JSONObject o = new JSONObject();
                 o.put("id", c.getInt(0));
@@ -330,6 +497,7 @@ public class ReplyForgeDb extends SQLiteOpenHelper {
                 o.put("missing_fields", new JSONArray(c.getString(8)));
                 o.put("address_note", c.getString(9));
                 o.put("created_at", c.getLong(10));
+                o.put("thread_id", c.getString(11));
                 return o;
             }
         } catch (Exception e) {
@@ -380,6 +548,24 @@ public class ReplyForgeDb extends SQLiteOpenHelper {
             }
         } catch (Exception e) {
             Log.e(TAG, "Error listing messages", e);
+        }
+        return arr;
+    }
+
+    public synchronized JSONArray getRecentThreadMessages(String threadId, int limit) {
+        JSONArray arr = new JSONArray();
+        SQLiteDatabase db = getReadableDatabase();
+        String sql = "SELECT direction, text, created_at FROM (SELECT direction, text, created_at, id FROM messages WHERE thread_id = ? ORDER BY id DESC LIMIT ?) ORDER BY id ASC";
+        try (Cursor c = db.rawQuery(sql, new String[]{threadId, String.valueOf(limit)})) {
+            while (c.moveToNext()) {
+                JSONObject o = new JSONObject();
+                o.put("direction", c.getString(0));
+                o.put("text", c.getString(1));
+                o.put("created_at", c.getLong(2));
+                arr.put(o);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting recent thread messages", e);
         }
         return arr;
     }
@@ -543,11 +729,203 @@ public class ReplyForgeDb extends SQLiteOpenHelper {
         return null;
     }
 
+    public synchronized JSONArray listRules() {
+        JSONArray arr = new JSONArray();
+        SQLiteDatabase db = getReadableDatabase();
+        try (Cursor c = db.rawQuery("SELECT id, name, triggers, response, enabled, source, created_at FROM rules ORDER BY id ASC", null)) {
+            while (c.moveToNext()) {
+                JSONObject o = new JSONObject();
+                o.put("id", c.getInt(0));
+                o.put("name", c.getString(1));
+                o.put("triggers", new JSONArray(c.getString(2)));
+                o.put("response", c.getString(3));
+                o.put("enabled", c.getInt(4) == 1);
+                o.put("source", c.getString(5));
+                o.put("created_at", c.getLong(6));
+                arr.put(o);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error listing rules", e);
+        }
+        return arr;
+    }
+
+    public synchronized JSONObject insertRule(JSONObject r) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        long now = System.currentTimeMillis();
+        cv.put("name", r.optString("name", "Aturan Baru"));
+        cv.put("triggers", r.optJSONArray("triggers") != null ? r.optJSONArray("triggers").toString() : "[]");
+        cv.put("response", r.optString("response", ""));
+        cv.put("enabled", r.optBoolean("enabled", true) ? 1 : 0);
+        cv.put("source", r.optString("source", "user"));
+        cv.put("created_at", now);
+        long id = db.insert("rules", null, cv);
+        try {
+            JSONObject res = new JSONObject();
+            res.put("id", id);
+            res.put("name", cv.getAsString("name"));
+            res.put("triggers", new JSONArray(cv.getAsString("triggers")));
+            res.put("response", cv.getAsString("response"));
+            res.put("enabled", cv.getAsInteger("enabled") == 1);
+            res.put("source", cv.getAsString("source"));
+            res.put("created_at", now);
+            return res;
+        } catch (Exception e) {
+            return new JSONObject();
+        }
+    }
+
+    public synchronized void deleteRule(int id) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete("rules", "id = ?", new String[]{String.valueOf(id)});
+    }
+
+    public synchronized int clearSelfTestData() {
+        SQLiteDatabase db = getWritableDatabase();
+        int deleted = 0;
+        deleted += db.delete("messages", "buyer LIKE ? OR text LIKE ? OR thread_id LIKE ?",
+                new String[]{"%[SELFTEST]%", "%[SELFTEST]%", "%[SELFTEST]%"});
+        deleted += db.delete("threads", "buyer LIKE ? OR id LIKE ?",
+                new String[]{"%[SELFTEST]%", "%[SELFTEST]%"});
+        deleted += db.delete("orders", "buyer LIKE ? OR address_note LIKE ?",
+                new String[]{"%[SELFTEST]%", "%[SELFTEST]%"});
+        deleted += db.delete("anomaly_alerts", "buyer LIKE ? OR message_text LIKE ? OR thread_id LIKE ?",
+                new String[]{"%[SELFTEST]%", "%[SELFTEST]%", "%[SELFTEST]%"});
+        deleted += db.delete("products", "name LIKE ? OR sku LIKE ?",
+                new String[]{"%[SELFTEST]%", "SELFTEST%"});
+        return deleted;
+    }
+
     public synchronized void resetAllData() {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM messages");
         db.execSQL("DELETE FROM threads");
         db.execSQL("DELETE FROM orders");
         db.execSQL("DELETE FROM anomaly_alerts");
+        db.execSQL("DELETE FROM products WHERE sku != 'STK-CAT-01'");
+        try (Cursor c = db.rawQuery("SELECT id FROM products WHERE sku = 'STK-CAT-01'", null)) {
+            if (c.moveToNext()) {
+                db.execSQL("UPDATE products SET stock = 50 WHERE sku = 'STK-CAT-01'");
+            } else {
+                long now = System.currentTimeMillis();
+                insertProduct(db, "STK-CAT-01", "Paket Stiker Kucing Gemoy Vinyl Waterproof Lucu Anti Air Die Cut Isi 20 Pcs",
+                        "[\"paket stiker kucing gemoy\",\"stiker kucing gemoy\",\"stiker kucing\",\"sticker kucing\",\"stiker vinyl\",\"stiker gemoy\",\"stiker\",\"sticker\",\"sticker cat\",\"kucing\"]",
+                        "pack", 15000, 6000, 50, 100, 15, now);
+            }
+        }
+    }
+
+    public synchronized boolean addProduct(String sku, String name, int price, int hpp, int stock, String unit) {
+        SQLiteDatabase db = getWritableDatabase();
+        long now = System.currentTimeMillis();
+        String aliases = "[\"" + name.toLowerCase(java.util.Locale.ROOT) + "\",\"" + sku.toLowerCase(java.util.Locale.ROOT) + "\"]";
+        insertProduct(db, sku, name, aliases, unit != null && !unit.isEmpty() ? unit : "pcs", price, hpp, stock, 100, 15, now);
+        return true;
+    }
+
+    public synchronized void setSetting(String key, String val) {
+        SQLiteDatabase db = getWritableDatabase();
+        setSettingInternal(db, key, val);
+    }
+
+    public synchronized boolean isOnboardingCompleted() {
+        SQLiteDatabase db = getReadableDatabase();
+        try (Cursor c = db.rawQuery("SELECT value FROM settings WHERE key = 'onboarding_completed'", null)) {
+            if (c.moveToNext()) {
+                return "1".equals(c.getString(0));
+            }
+        } catch (Exception ignored) {}
+        return false;
+    }
+
+    public synchronized void setOnboardingCompleted(boolean completed) {
+        setSetting("onboarding_completed", completed ? "1" : "0");
+    }
+
+    public synchronized void resetToFreshInstall() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM messages");
+        db.execSQL("DELETE FROM threads");
+        db.execSQL("DELETE FROM orders");
+        db.execSQL("DELETE FROM anomaly_alerts");
+        db.execSQL("DELETE FROM products");
+        db.execSQL("DELETE FROM store_accounts");
+        db.execSQL("DELETE FROM settings WHERE key = 'onboarding_completed'");
+    }
+
+    public synchronized void seedDemoStickeria() {
+        SQLiteDatabase db = getWritableDatabase();
+        seedDefaults(db);
+        setSetting("onboarding_completed", "1");
+    }
+
+    /**
+     * Latest Shopee order bound to a chat thread. Used to make the "Potong Stok" action
+     * idempotent: once a thread has a paid/cancelled Shopee order the button must stay closed.
+     */
+    public synchronized JSONObject getLatestShopeeOrderForThread(String threadId, String buyer) {
+        SQLiteDatabase db = getReadableDatabase();
+        String sql = "SELECT id, code, buyer, channel, items, total, status, source, missing_fields, address_note, created_at, thread_id "
+                + "FROM orders WHERE channel = 'shopee' ORDER BY id DESC LIMIT 40";
+        try (Cursor c = db.rawQuery(sql, null)) {
+            while (c.moveToNext()) {
+                String oThread = c.getString(11);
+                String oBuyer = c.getString(2);
+                boolean sameThread = threadId != null && !threadId.isEmpty() && threadId.equalsIgnoreCase(oThread);
+                boolean sameBuyer = buyer != null && !buyer.trim().isEmpty() && oBuyer != null
+                        && oBuyer.toLowerCase(java.util.Locale.ROOT).trim()
+                        .equals(buyer.toLowerCase(java.util.Locale.ROOT).trim());
+                if (!sameThread && !sameBuyer) continue;
+
+                JSONObject o = new JSONObject();
+                o.put("id", c.getInt(0));
+                o.put("code", c.getString(1));
+                o.put("buyer", c.getString(2));
+                o.put("channel", c.getString(3));
+                o.put("items", new JSONArray(c.getString(4)));
+                o.put("total", c.getInt(5));
+                o.put("status", c.getString(6));
+                o.put("source", c.getString(7));
+                o.put("missing_fields", new JSONArray(c.getString(8)));
+                o.put("address_note", c.getString(9));
+                o.put("created_at", c.getLong(10));
+                o.put("thread_id", c.getString(11));
+                return o;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getLatestShopeeOrderForThread", e);
+        }
+        return null;
+    }
+
+    public synchronized JSONObject getActiveOrderByBuyer(String buyer) {
+        if (buyer == null || buyer.trim().isEmpty()) return null;
+        String bClean = buyer.toLowerCase(java.util.Locale.ROOT).trim();
+        SQLiteDatabase db = getReadableDatabase();
+        try (Cursor c = db.rawQuery("SELECT id, code, buyer, channel, items, total, status, source, missing_fields, address_note, created_at, thread_id FROM orders WHERE status = 'reserved' ORDER BY id DESC", null)) {
+            while (c.moveToNext()) {
+                String oBuyer = c.getString(2).toLowerCase(java.util.Locale.ROOT).trim();
+                if (oBuyer.equals(bClean) || oBuyer.contains(bClean) || bClean.contains(oBuyer)) {
+                    JSONObject o = new JSONObject();
+                    o.put("id", c.getInt(0));
+                    o.put("code", c.getString(1));
+                    o.put("buyer", c.getString(2));
+                    o.put("channel", c.getString(3));
+                    o.put("items", new JSONArray(c.getString(4)));
+                    o.put("total", c.getInt(5));
+                    o.put("status", c.getString(6));
+                    o.put("source", c.getString(7));
+                    o.put("missing_fields", new JSONArray(c.getString(8)));
+                    o.put("address_note", c.getString(9));
+                    o.put("created_at", c.getLong(10));
+                    o.put("thread_id", c.getString(11));
+                    return o;
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getActiveOrderByBuyer", e);
+        }
+        return null;
     }
 }
