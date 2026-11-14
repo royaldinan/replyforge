@@ -64,9 +64,15 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
                 holder.llBuyer.setVisibility(View.GONE);
                 holder.llMine.setVisibility(View.VISIBLE);
                 holder.tvMineText.setText(text);
-                holder.tvMineTime.setText(timeStr + (isWhatsApp
-                        ? " · AI Auto-Reply"
-                        : " · Draf Copilot (belum terkirim)"));
+                String suffix;
+                if (!isWhatsApp && text.startsWith("✅ Catatan sistem")) {
+                    suffix = " · Catatan sistem";
+                } else if (isWhatsApp) {
+                    suffix = " · AI Auto-Reply";
+                } else {
+                    suffix = " · Draf Copilot (belum terkirim)";
+                }
+                holder.tvMineTime.setText(timeStr + suffix);
             }
         } catch (Exception ignored) {}
     }

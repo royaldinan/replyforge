@@ -97,6 +97,12 @@ public class ChatDetailActivity extends AppCompatActivity {
         btnSend = findViewById(R.id.btn_chat_send);
 
         boolean isWhatsApp = "whatsapp".equalsIgnoreCase(channel);
+        if (!isWhatsApp) {
+            // Shopee has no autopilot: keep the channel badge, remove pause/resume only.
+            tvTakeover.setText("● Smart Copilot");
+            tvTakeover.setClickable(false);
+            btnResumeAi.setVisibility(View.GONE);
+        }
         if (llRoot != null) {
             llRoot.setBackgroundColor(ContextCompat.getColor(
                     this,
@@ -195,6 +201,13 @@ public class ChatDetailActivity extends AppCompatActivity {
 
     private void updateTakeoverUi(boolean paused) {
         boolean isWhatsApp = "whatsapp".equalsIgnoreCase(channel);
+        if (!isWhatsApp) {
+            tvTakeover.setVisibility(View.VISIBLE);
+            tvTakeover.setText("● Smart Copilot");
+            tvTakeover.setClickable(false);
+            btnResumeAi.setVisibility(View.GONE);
+            return;
+        }
         if (paused) {
             tvTakeover.setText("AI Dijeda");
             tvTakeover.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_badge_amber));
@@ -457,8 +470,8 @@ public class ChatDetailActivity extends AppCompatActivity {
                             "Checkout Shopee diverifikasi seller", threadId);
                     if (order != null) {
                         db.insertMessage(threadId, buyer, "shopee", "out",
-                                "Terima kasih kak " + buyer + "! Pesanan " + qty + " " + chosen.optString("name", "produk")
-                                        + " sudah kami catat dan stok fisik sudah disesuaikan. Paket segera kami kemas ya ✨");
+                                "✅ Catatan sistem: pesanan " + qty + " " + chosen.optString("name", "produk")
+                                        + " dicatat, stok fisik disesuaikan -" + qty + ". Paket segera dikemas.");
                         db.setThreadPaused(threadId, buyer, "shopee", true);
                         Toast.makeText(this, "Tercatat " + order.optString("code", "") + " · stok -" + qty + " pack", Toast.LENGTH_LONG).show();
                     }
