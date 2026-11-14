@@ -2,4 +2,32 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- ReplyForge V6 Final Palette (Warm Ivory Canvas, Obsidian Slate, Honey Amber) -->
+    <color name="bg_canvas">#FFFDF7</color>
+    <color name="surface_card">#FFFFFF</color>
+    <color name="border_hairline">#F1E9DA</color>
+
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#475569</color>
+    <color name="text_muted">#64748B</color>
+
+    <color name="brand_primary">#B45309</color>
+    <color name="brand_primary_pressed">#92400E</color>
+    <color name="brand_soft">#FFFBEB</color>
+    <color name="brand_soft_text">#92400E</color>
+
+    <color name="success">#047857</color>
+    <color name="success_soft">#ECFDF5</color>
+
+    <!-- Two-axis Channel Identity Tokens (Warm-Ivory Harmonized) -->
+    <color name="channel_wa">#047857</color>
+    <color name="channel_wa_soft">#ECFDF5</color>
+    <color name="channel_wa_border">#A7F3D0</color>
+    <color name="channel_wa_wash">#F6FDF9</color>
+
+    <color name="channel_shopee">#C2410C</color>
+    <color name="channel_shopee_soft">#FFF1E2</color>
+    <color name="channel_shopee_border">#FED7AA</color>
+    <color name="channel_shopee_wash">#FFFBF4</color>
 </resources>

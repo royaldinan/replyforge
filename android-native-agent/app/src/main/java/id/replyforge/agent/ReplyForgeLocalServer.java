@@ -156,6 +156,13 @@ public class ReplyForgeLocalServer {
                 return;
             }
         }
+        if ("/api/products/import-csv".equals(path) && "POST".equals(method)) {
+            JSONObject b = parseJson(body);
+            String csvData = b.optString("csvData", "");
+            int count = db.importProductsFromCsv(csvData);
+            sendJson(out, 200, "{\"success\":true,\"count\":" + count + "}");
+            return;
+        }
         if (path.startsWith("/api/products/") && path.endsWith("/stock") && "PATCH".equals(method)) {
             String sku = path.substring("/api/products/".length(), path.length() - "/stock".length());
             JSONObject b = parseJson(body);
@@ -170,17 +177,34 @@ public class ReplyForgeLocalServer {
             if ("GET".equals(method)) {
                 sendJson(out, 200, db.listOrders().toString());
                 return;
+            } else if ("POST".equals(method)) {
+                JSONObject b = parseJson(body);
+                String buyer = b.optString("buyer", "Pembeli");
+                String channel = b.optString("channel", "whatsapp");
+                String sku = b.optString("sku", "STK-CAT-01");
+                int qty = b.optInt("quantity", 1);
+                int price = b.optInt("price", 15000);
+                String status = b.optString("status", "reserved");
+                String note = b.optString("address_note", "");
+                JSONObject order = db.insertOrder(buyer, channel, sku, qty, price, status, note);
+                sendJson(out, 201, order != null ? order.toString() : "{}");
+                return;
             }
         }
-        if (path.startsWith("/api/orders/") && path.endsWith("/status") && "PATCH".equals(method)) {
+        if (path.startsWith("/api/orders/") && path.endsWith("/status") && ("PATCH".equals(method) || "POST".equals(method))) {
             String[] segments = path.split("/");
             if (segments.length >= 4) {
-                int id = Integer.parseInt(segments[3]);
-                JSONObject b = parseJson(body);
-                String status = b.optString("status", "reserved");
-                JSONObject updated = db.updateOrderStatus(id, status);
-                sendJson(out, 200, updated != null ? updated.toString() : "{}");
-                return;
+                try {
+                    int id = Integer.parseInt(segments[3]);
+                    JSONObject b = parseJson(body);
+                    String status = b.optString("status", "reserved");
+                    JSONObject updated = db.updateOrderStatus(id, status);
+                    sendJson(out, 200, updated != null ? updated.toString() : "{}");
+                    return;
+                } catch (Exception e) {
+                    sendJson(out, 400, "{\"error\":\"Invalid order id\"}");
+                    return;
+                }
             }
         }
 
@@ -210,6 +234,61 @@ public class ReplyForgeLocalServer {
             // Dispatch to RemoteInput action if notification is active
             ReplyForgeNotificationService.dispatchManualReply(buyer, text);
             sendJson(out, 200, "{\"success\":true}");
+            return;
+        }
+
+        if ("/api/notification-webhook".equals(path) && "POST".equals(method)) {
+            JSONObject b = parseJson(body);
+            String buyer = b.optString("buyer", "Pembeli");
+            String text = b.optString("text", "");
+            String channel = b.optString("channel", "whatsapp");
+            String threadId = channel + ":" + buyer;
+
+            db.insertMessage(threadId, buyer, channel, "in", text);
+            ReplyForgeAiEngine.AiResponse aiResp = ReplyForgeAiEngine.processBuyerMessage(context, buyer, text, threadId);
+
+            JSONObject resp = new JSONObject();
+            resp.put("success", true);
+
+            if (aiResp.isAnomaly) {
+                db.addAlert(threadId, buyer, channel, aiResp.anomalyKind, "high",
+                        aiResp.anomalyTitle, aiResp.anomalyReason, text, aiResp.requestedQty, aiResp.sku);
+                db.setThreadPaused(threadId, buyer, channel, true);
+                resp.put("anomaly", true);
+            } else if (aiResp.reply != null && !aiResp.reply.trim().isEmpty()) {
+                String replyText = aiResp.reply.trim();
+                db.insertMessage(threadId, buyer, channel, "out", replyText);
+                resp.put("reply", replyText);
+            }
+            sendJson(out, 200, resp.toString());
+            return;
+        }
+
+        // 3b. /api/rules
+        if ("/api/rules".equals(path)) {
+            if ("GET".equals(method)) {
+                sendJson(out, 200, db.listRules().toString());
+                return;
+            }
+            if ("POST".equals(method)) {
+                JSONObject b = parseJson(body);
+                JSONObject created = db.insertRule(b);
+                sendJson(out, 200, created != null ? created.toString() : "{}");
+                return;
+            }
+        }
+        if (path.startsWith("/api/rules/") && "DELETE".equals(method)) {
+            try {
+                int id = Integer.parseInt(path.substring("/api/rules/".length()));
+                db.deleteRule(id);
+            } catch (Exception ignored) {}
+            sendJson(out, 200, "{\"success\":true}");
+            return;
+        }
+
+        // 3c. /api/cache
+        if ("/api/cache".equals(path)) {
+            sendJson(out, 200, "[]");
             return;
         }
 

@@ -1,9 +1,62 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.AssignmentWeek6" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Base.Theme.AssignmentWeek6" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:windowBackground">@color/bg_canvas</item>
+        <item name="android:statusBarColor">@color/bg_canvas</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/brand_primary</item>
     </style>
 
     <style name="Theme.AssignmentWeek6" parent="Base.Theme.AssignmentWeek6" />
+
+    <!-- ReplyForge button styles. Material3 inflates every <Button> as MaterialButton,
+         so colour comes from app:backgroundTint (android:background is ignored). -->
+    <style name="Widget.ReplyForge.Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/brand_primary</item>
+        <item name="android:textColor">@color/surface_card</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <style name="Widget.ReplyForge.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="backgroundTint">@color/brand_soft</item>
+        <item name="android:textColor">@color/brand_soft_text</item>
+        <item name="strokeColor">@color/brand_primary</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <style name="Widget.ReplyForge.Button.Success" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/success</item>
+        <item name="android:textColor">@color/surface_card</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <style name="Widget.ReplyForge.Button.Ghost" parent="Widget.Material3.Button.TextButton">
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="android:textColor">@color/brand_primary</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <style name="Widget.ReplyForge.Chip" parent="Widget.Material3.Chip.Filter">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
 </resources>

@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">ReplyForge</string>
+    <string name="channel_whatsapp_business">WhatsApp Business</string>
+    <string name="self_test_open_button">Jalankan Self-Test</string>
+    <string name="self_test_title">Self-Test Jalur Produksi</string>
+    <string name="self_test_subtitle">Verifikasi 8 kasus notifikasi in-process + 4 kasus parser perintah cepat (offline)</string>
+    <string name="self_test_header_row">CASE | EXPECTED | ACTUAL | PASS/FAIL</string>
+    <string name="self_test_col_case">CASE</string>
+    <string name="self_test_col_expected">EXPECTED</string>
+    <string name="self_test_col_actual">ACTUAL</string>
+    <string name="self_test_col_verdict">PASS/FAIL</string>
+    <string name="self_test_rerun_button">Jalankan Ulang</string>
+    <string name="self_test_clean_button">Bersihkan data uji</string>
+    <string name="self_test_back_button">Kembali</string>
+    <string name="self_test_clean_done">Data uji [SELFTEST] dibersihkan (%1$d baris dihapus)</string>
+    <string name="self_test_cmd_prefix">[CMD] </string>
+    <string name="self_test_pass">PASS</string>
+    <string name="self_test_fail">FAIL</string>
 </resources>

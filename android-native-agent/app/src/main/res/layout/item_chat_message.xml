@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:orientation="vertical">
+
+    <!-- Buyer Message (Left) -->
+    <LinearLayout
+        android:id="@+id/ll_msg_buyer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginEnd="60dp"
+        android:background="@drawable/bg_chat_buyer"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tv_msg_buyer_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pesen 1 pack ya kak"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tv_msg_buyer_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="13.08"
+            android:textColor="@color/text_muted"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <!-- Mine / AI Message (Right) -->
+    <LinearLayout
+        android:id="@+id/ll_msg_mine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginStart="60dp"
+        android:background="@drawable/bg_chat_ai"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tv_msg_mine_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Siap kak! Pesanan 1 pack sudah kami amankan..."
+            android:textColor="@color/text_primary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tv_msg_mine_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="13.08 · AI Auto-Reply"
+            android:textColor="@color/brand_primary"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+</LinearLayout>
