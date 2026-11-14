@@ -70,7 +70,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
                 } else if (isWhatsApp) {
                     suffix = " · AI Auto-Reply";
                 } else {
-                    suffix = " · Draf Copilot (belum terkirim)";
+                    suffix = " · Draf Copilot";
                 }
                 holder.tvMineTime.setText(timeStr + suffix);
             }
