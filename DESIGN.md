@@ -1,7 +1,7 @@
-# DESIGN.md — ReplyForge v3.0 Visual Design Architecture & Tokens (Sunlit Warm Commercial)
+# DESIGN.md — ReplyForge v4.0 Visual Design Architecture & Tokens (Sunlit Warm Commercial)
 
 ## 1. Design Philosophy & Craft Standards (getlayers.ai, Wise, & OpenDesign Inspired)
-ReplyForge v3.0 strictly follows the **Impeccable Craft Standard**, **Emil Kowalski Motion Physics**, and **Anti-Slop Design Principles**:
+ReplyForge v4.0 strictly follows the **Impeccable Craft Standard**, **Emil Kowalski Motion Physics**, and **Anti-Slop Design Principles**:
 - **Sunlit Warm Commercial Palette (Dominan Putih & Kuning Cerah):**
   - Replaces generic dark-blue AI slop with a warm, sunlit commercial aesthetic tailored for Indonesian MSME merchants.
   - Primary canvas in Warm Alabaster (`#FAF8F5`) paired with Pure Crisp White (`#FFFFFF`) elevated surfaces and Vibrant Sun Yellow / Amber Gold (`#FACC15` -> `#F59E0B`) primary actions.
@@ -39,9 +39,9 @@ ReplyForge v3.0 strictly follows the **Impeccable Craft Standard**, **Emil Kowal
 - **Monospace Typeface:** `JetBrains Mono` (Applied strictly to SKUs, code identifiers, latency metrics, and API payloads).
 - **Type Scale:**
   - Micro Badges: `10px` / tracking +0.02em / uppercase
-  - Helper & Meta Text: `11px` / text-zinc-400
+  - Helper & Meta Text: `11px` / text-ink-3
   - Body Text & Inputs: `12px` (text-xs) to `13px` / line-height 1.5
-  - Section Headings: `14px` (text-sm) / font-semibold / text-zinc-100
+  - Section Headings: `14px` (text-sm) / font-semibold / text-ink-1
   - Hero Dashboard Metrics: `20px` to `24px` / font-bold / tabular-nums
 
 ---
@@ -50,4 +50,4 @@ ReplyForge v3.0 strictly follows the **Impeccable Craft Standard**, **Emil Kowal
 - **Pipeline Pulse:** Active telemetry nodes expand by `scale-[1.02]` with an animated bottom accent bar indicating active execution status.
 - **Stock Depletion Transition:** Depletion progress bars animate over `500ms cubic-bezier(0.22, 1, 0.36, 1)` smoothly decrementing without stepping artifacts.
 - **Button Press Feedback:** All pressable controls scale to `0.97` on active tap with an asymmetric release curve (fast release 160ms ease-out).
-- **Toast Notifications:** Sonner-powered dark toasts positioned at `top-right` (desktop) and `top-center` (mobile) with high-contrast status icons.
+- **Toast Notifications:** Sonner-powered light toasts (white surface, `#18181B` text, `#E5E2DA` hairline border) positioned at `top-right` (desktop) and `top-center` (mobile) with high-contrast status icons.

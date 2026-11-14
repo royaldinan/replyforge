@@ -19,7 +19,7 @@ The following components have been directly verified on this host machine (`Wind
 ## 2. Phase-by-Phase Verified Execution Roadmap
 
 ### Phase 1: Total Data Sanitization & Single Source of Truth
-**Objective:** Eliminate 100% of legacy "Kopi Senja" and "Gamis" remnants; establish "Lina Shop - Cute Accessories & Merchandise" as the official case study.
+**Objective:** Eliminate 100% of legacy "Kopi Senja" and "Gamis" remnants; establish "Stickeria - Cute Accessories & Merchandise" as the official case study.
 
 1. **`server/src/seed.js`:**
    - Replace seed products with official accessories catalog:
@@ -33,7 +33,7 @@ The following components have been directly verified on this host machine (`Wind
 3. **`server/src/engine/intent.js`:**
    - Update intent extraction dictionary with accessory keywords (stiker, keychain, gantungan kunci, griptok, photocard holder, capybara, daisy).
 4. **`web/src/App.tsx`:**
-   - Set default `storeName` to `'Lina Shop'` and bank account to `'BCA 5271 8890 21 a.n. Lina Shop'`.
+   - Set default `storeName` to `'Stickeria'` and bank account to `'SeaBank 901483182051 a.n. Stickeria'`.
    - Update receipt scanning mock text to `STK-CAT-01`.
 5. **`web/src/components/StoreStudio.tsx`:**
    - Update quick command examples: *"Tambah stok Gantungan Kunci Capybara jadi 40 pcs harga 25rb"*.
@@ -51,7 +51,7 @@ The following components have been directly verified on this host machine (`Wind
 
 1. **`src/components/mobile/AppHeader.tsx`:**
    - Design a compact 56px unified top bar:
-     - Left: Store monogram avatar "LS", "Lina Shop", online pulse dot.
+     - Left: Store monogram avatar "LS", "Stickeria", online pulse dot.
      - Center: Segmented channel chip (Shopee Seller with orange dot vs WA Business with green dot + unread pill).
      - Right: Master "⚡ Auto-Pilot" toggle with smooth transition.
 2. **`src/components/mobile/ThreadView.tsx`:**

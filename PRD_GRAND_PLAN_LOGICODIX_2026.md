@@ -201,7 +201,7 @@ terlihat seperti mockup, alur pengguna dibangun utuh dari pertama kali dibuka:
      & Registrasi Toko yang bersih (tema Putih-Kuning Cerah):
      * Input Email / Nomor HP Penjual & Password.
      * Tombol "Daftar Toko Baru" (bagi penjual yang baru pertama kali install).
-     * Tombol Cepat "Masuk Akun Demo (Lina Shop)" — Disediakan khusus di bawah
+     * Tombol Cepat "Masuk Akun Demo (Stickeria)" — Disediakan khusus di bawah
        form login sesuai kewajiban Guidebook Hal. 20 & Hal. 22 agar juri dapat
        masuk dalam 1 klik (kredensial juga dicantumkan di README.md).
 
@@ -218,7 +218,7 @@ terlihat seperti mockup, alur pengguna dibangun utuh dari pertama kali dibuka:
    "Wizard Koneksi Toko (3 Langkah)":
 
    - Langkah 1: Identitas & Rekening Toko
-     Penjual mengisi Nama Toko (misal: Lina Shop), Kategori Usaha, Nomor Rekening
+     Penjual mengisi Nama Toko (misal: Stickeria), Kategori Usaha, Nomor Rekening
      Tujuan Transfer, serta Jam Operasional Toko.
 
    - Langkah 2: Hubungkan WhatsApp Business & Shopee Seller di HP Ini
@@ -390,7 +390,7 @@ SUSUNAN ADEGAN & NASKAH VOICE-OVER (TOTAL DURASI TARGET: 4 MENIT 00 DETIK):
 
 1. Menit 00:00 - 00:35 | Pembukaan, Masalah Nyata, & Identitas Aplikasi
    - Visual: Menampilkan halaman awal ReplyForge (Putih-Kuning Cerah), lalu masuk
-     ke akun toko "Lina Shop" dan memperlihatkan status koneksi WhatsApp Business
+     ke akun toko "Stickeria" dan memperlihatkan status koneksi WhatsApp Business
      & Shopee Seller yang sudah aktif melalui izin jembatan notifikasi Android.
    - Voice-Over: Menjelaskan kalimat masalah (penjual UMKM kewalahan menyalin
      chat pesanan dari WA Business & Shopee ke buku stok, rawan salah hitung

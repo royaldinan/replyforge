@@ -3,7 +3,7 @@
 **Tanggal Pembaruan:** 10 November 2026  
 **Status Sesi:** Transisi dari *Tethered Localhost Prototype* ke *100% Standalone Native Android App*  
 **Kompetisi:** Hackathon LOGICODIX 2026 (Subtema 3: AI & Inovasi Perangkat Lunak untuk UMKM)  
-**Studi Kasus:** "Lina Shop" (Aksesoris & Merchandise Kreatif — WhatsApp Business: `0851-8325-0750`)  
+**Studi Kasus:** "Stickeria" (Aksesoris & Merchandise Kreatif — WhatsApp Business: `0851-8325-0750`)  
 **Perangkat Fisik Pengujian:** Infinix Note 40 (X6853, Android 14/XOS, Dual SIM, No Root)
 
 ---
@@ -39,7 +39,7 @@ Semua item di bawah ini **100% terbukti di kode, database SQLite, dan tangkapan 
 3. **Tutorial Modal Ramah Orang Awam:**
    - Berhasil dibuat dan diverifikasi langsung di HP (`? Panduan`): memuat 4 tab interaktif (Alur 3 Langkah, Fungsi Tiap Menu, Kapan AI Panggil Anda, dan Cara Pakai di HP).
 4. **Pemberantasan Bug Echo Loop & Pemaksaan Pesanan Palsu:**
-   - Filter identitas pemilik: Notifikasi dengan nama `"Anda"`, `"You"`, `"Lina Shop"`, `"Mahiru"` langsung di-drop (0 byte dibalas balik).
+   - Filter identitas pemilik: Notifikasi dengan nama `"Anda"`, `"You"`, `"Stickeria"`, `"Mahiru"` langsung di-drop (0 byte dibalas balik).
    - Logika pemesanan (`parseOrderIntent`) diperketat: Chat pertanyaan ketersediaan (*"ready?"*, *"ada gak?"*) **dilarang keras** dijadikan draf pesanan atau ditagih transfer bank.
    - Normalisasi typo UMKM: `sticker` -> `stiker`, `rdy` -> `ready`, `kcg` -> `kucing`.
 5. **Penghapusan Fitur Tidak Efektif:**
@@ -79,7 +79,7 @@ Semua item di bawah ini **100% terbukti di kode, database SQLite, dan tangkapan 
 
 ### PILAR 2: ANDROID FOREGROUND SERVICE (ANTI-FREEZE XOS INFINIX)
 1. Di `ReplyForgeNotificationService.java`, panggil `startForeground(101, notification)` dengan notifikasi senyap di status bar:
-   `"ReplyForge Aktif · Menjaga Chat & Stok Lina Shop"`.
+   `"ReplyForge Aktif · Menjaga Chat & Stok Stickeria"`.
 2. Deklarasikan tipe foreground service di `AndroidManifest.xml`:
    `android:foregroundServiceType="specialUse"` atau `"dataSync"`.
 3. **Hasil Terverifikasi:** Kernel Linux Android dan XOS `Hiber/stateManager` **dilarang membekukan proses ReplyForge**, sehingga service listener tetap terjaga 24 jam nonstop saat layar mati.
@@ -98,7 +98,7 @@ Semua item di bawah ini **100% terbukti di kode, database SQLite, dan tangkapan 
 ### PILAR 4: OTAK AI KECERDASAN TINGGI (INDONESIAN CHAT-COMMERCE MASTER)
 Tingkatkan System Prompt AI di HP agar memiliki kecerdasan kontekstual manusia asli:
 ```text
-Anda adalah "Lina Permata", pemilik sekaligus admin toko online kreatif "Lina Shop".
+Anda adalah "Lina Permata", pemilik sekaligus admin toko online kreatif "Stickeria".
 Karakter: Ramah, santai, cekatan, akrab khas admin olshop Indonesia asli, namun profesional dan teliti.
 
 KEMAMPUAN BAHASA:
@@ -115,7 +115,7 @@ ATURAN BISNIS MUTLAK (ANTI-RUGI):
 2. JADWAL PENGIRIMAN:
    - Pesanan sebelum jam 16.00 WIB dikirim di hari yang sama (JNE, J&T, SiCepat).
 3. PEMBAYARAN:
-   - Transfer resmi hanya ke BCA 5271 8890 21 a.n. Lina Shop.
+   - Transfer resmi hanya ke SeaBank 901483182051 a.n. Stickeria.
 4. JANGAN MEMAKSA PESANAN:
    - Jika pembeli hanya bertanya "ready?", JAWAB KETERSEDIAAN DAN SAPA DENGAN HANGAT. Dilarang langsung membuat tagihan transfer sebelum pembeli menyatakan ingin membeli.
 ```
